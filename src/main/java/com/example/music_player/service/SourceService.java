@@ -59,6 +59,7 @@ public class SourceService {
         return songService.isExist(source);
     }
 
+   // @Transactional
     public void delete(Long id) {
         Source source = sourceRepository.findById(id);
         songService.delete(source);

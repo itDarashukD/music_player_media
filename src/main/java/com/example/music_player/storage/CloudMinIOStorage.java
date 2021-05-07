@@ -2,6 +2,8 @@ package com.example.music_player.storage;
 
 import com.example.music_player.config.MinIOConfig;
 import com.example.music_player.entity.Source;
+import io.minio.GetObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
 import io.minio.errors.MinioException;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -11,7 +13,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -48,31 +53,30 @@ public class CloudMinIOStorage implements IStorageSourceService {
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e.getMessage());
             System.out.println("HTTP trace: " + e.httpTrace());
-        } catch (IOException|NoSuchAlgorithmException | InvalidKeyException e) {
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             System.out.println("Error occurred: " + e.getMessage());
         }
         return createSource(multipartFile, songId);
-    }//TODO I can do this with UUID
+    }
 
     private Source createSource(MultipartFile multipartFile, Long songId) {
         Source source = null;
         Resource resource = multipartFile.getResource();
         String originalFilename = multipartFile.getOriginalFilename();
         String contentType = multipartFile.getContentType();
-            try {
-                source = new Source(originalFilename
-                        , pathCloudStorage
-                        , resource.contentLength()
-                        , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
-                        , contentType);
+        try {
+            source = new Source(originalFilename
+                    , pathCloudStorage
+                    , resource.contentLength()
+                    , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
+                    , contentType);
 
-                source.setStorage_types(StorageTypes.AMAZON_S3);
-                source.setStorage_id(2L);
-                source.setSong_id(songId);//TODO song_Id how autoIncrement or it must be equal to id in Song
-            }catch (IOException e){
-                System.out.println("Error occurred: " + e.getMessage());
-            }
-
+            source.setStorage_types(StorageTypes.AMAZON_S3);
+            source.setStorage_id(2L);
+            source.setSong_id(songId);//TODO song_Id how autoIncrement or it must be equal to id in Song
+        } catch (IOException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
         return source;
     }
 
@@ -82,10 +86,72 @@ public class CloudMinIOStorage implements IStorageSourceService {
             FileOutputStream fos = new FileOutputStream(convertedFile);
             fos.write(multipartFile.getBytes());
             fos.close();
-         } catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Exception IN : convertMultipartFileToFile()" + e.getMessage());
         }
         return convertedFile;
+    }
+
+    @Override
+    public boolean isExist(Source source) {
+        Boolean isObjectExist = false;
+
+        try {
+            InputStream stream = minIOConfig.minioClient().getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucked)
+                            .object(source.getName())
+                            .build());
+
+            if (stream != null) {
+                isObjectExist = true;
+            }
+        } catch (MinioException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            System.out.println("HTTP trace: " + e.httpTrace());
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+        return isObjectExist;
+    }
+
+    @Override
+    public void delete(Source source) {
+        String sourceFilename = source.getName();
+        try {
+            minIOConfig.minioClient().removeObject(
+                    RemoveObjectArgs
+                            .builder()
+                            .bucket(bucked)
+                            .object(sourceFilename)
+                            .build());
+
+            System.out.println("file : " + sourceFilename + " is successfully deleted from bucket " + bucked);
+        } catch (MinioException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            System.out.println("HTTP trace: " + e.httpTrace());
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public InputStream findSongBySource(Source source)  {
+        InputStream stream = null;
+        try {
+            stream = minIOConfig.minioClient().getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucked)
+                            .object(source.getName())
+                            .build());
+
+        } catch (MinioException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            System.out.println("HTTP trace: " + e.httpTrace());
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+        return stream;
     }
 
 
@@ -100,20 +166,6 @@ public class CloudMinIOStorage implements IStorageSourceService {
         return null;
     }
 
-    @Override
-    public void delete(Source source) {
-
-    }
-
-    @Override
-    public boolean isExist(Source source) {
-        return false;
-    }
-
-    @Override
-    public InputStream findSongBySource(Source source) throws IOException {
-        return null;
-    }
 //    InputStream initialStream = multipartFile.getInputStream();
 //    byte[] buffer = new byte[initialStream.available()];
 //            initialStream.read(buffer);

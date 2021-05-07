@@ -52,6 +52,8 @@ public class CloudMinIOTest {
             System.out.println(
                     "'/home/user/Photos/asiaphotos.zip' is successfully uploaded as "
                             + "object 'asiaphotos-2015.zip' to bucket 'my-first-bucked'.");
+
+
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);
             System.out.println("HTTP trace: " + e.httpTrace());
