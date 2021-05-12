@@ -40,7 +40,6 @@ class AlbumControllerTest {
     private AlbumService albumService;
 
 
-
     @Test
     void findAllAlbums() throws Exception {
         when(albumService.finedAllAlbums()).thenReturn(Arrays.asList(album1, album2));
@@ -55,7 +54,7 @@ class AlbumControllerTest {
     @Test
     void addAlbum() throws Exception {
         Mockito.when(albumService.addAlbum(album1))
-                .thenReturn(String.valueOf(album1.getId()));
+                .thenReturn(album1.getId());
         this.mockMvc.perform(post("/album/add/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(album1)))

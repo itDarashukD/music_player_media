@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.stream.Stream;
 
 //@Service
 @StorageType(StorageTypes.FILE_SYSTEM)
@@ -26,21 +25,71 @@ public class FileSystemSourceStorage implements IStorageSourceService<File> {
     private String pathLocalStorage;
 
     @Override
-    public Stream<Path> loadAll() {
-        Path root = Paths.get(pathLocalStorage);
-        try {
-            return Files.walk(root, 1).filter(path -> !path.equals(root)).map(root::relativize);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load the files!");
-        }
+    public Source save(MultipartFile multipartFile, Long songId) {
+        Resource resource = multipartFile.getResource();
+        String originalFilename = multipartFile.getOriginalFilename();
+
+        if (!Files.exists(Paths.get(pathLocalStorage, originalFilename))) {
+            try {
+                Files.copy(resource.getInputStream()
+                        , Paths.get(pathLocalStorage, originalFilename)
+                        , StandardCopyOption.REPLACE_EXISTING);
+
+            } catch (IOException e) {
+                System.out.println("exception in public Source save()" + e.getMessage());
+            }
+        } else System.out.println("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
+        return  createSource(multipartFile, songId);
     }
 
-    @Override
-    public Source save(MultipartFile multipartFile, Long songId) {
+    private Source createSource(MultipartFile multipartFile, Long songId) {
         Source source = null;
         Resource resource = multipartFile.getResource();
         String originalFilename = multipartFile.getOriginalFilename();
         String contentType = multipartFile.getContentType();
+        try {
+            source = new Source(originalFilename
+                    , pathLocalStorage
+                    , resource.contentLength()
+                    , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
+                    , contentType);
+
+            source.setStorage_types(StorageTypes.FILE_SYSTEM);
+            source.setStorage_id(1L);
+            source.setSong_id(songId);
+        } catch (IOException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+        return source;
+    }
+
+    @Override
+    public InputStream findSongBySource(Source source) throws IOException {
+        Path path = Paths.get(source.getPath(), source.getName());
+        return new FileSystemResource(path).getInputStream();
+    }
+
+    @Override
+    public boolean isExist(Source source) {
+        String sourceFilePath = source.getPath();
+        String sourceFileName = source.getName();
+        return Files.exists(Paths.get(sourceFilePath, sourceFileName));
+    }
+
+    @Override
+    public void delete(Source source) {
+        String sourceFilename = source.getName();
+        String sourceFilePath = source.getPath();
+        try {
+            Files.delete(Paths.get(sourceFilePath, sourceFilename));
+        } catch (IOException e) {
+            System.out.println("Exception IN: delete(Source source)" + e.getMessage());
+        }
+    }
+
+    @Override //TODO maybe this method is redundant
+    public Source saveZip(Resource resource, String originalFilename, String contentType) {
+        Source source = null;
 
         if (!Files.exists(Paths.get(pathLocalStorage, originalFilename))) {
             try {
@@ -51,12 +100,12 @@ public class FileSystemSourceStorage implements IStorageSourceService<File> {
                 source = new Source(originalFilename
                         , pathLocalStorage
                         , resource.contentLength()
-                        , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
+                        , DigestUtils.md5Hex(resource.getInputStream())
                         , contentType);
 
                 source.setStorage_types(StorageTypes.FILE_SYSTEM);
                 source.setStorage_id(1L);
-                source.setSong_id(songId);//TODO song_Id how autoIncrement or it must be equal to id in Song
+                source.setSong_id(songIdCount);
 
             } catch (IOException e) {
                 System.out.println("exception in public Source save()" + e.getMessage());
@@ -79,12 +128,6 @@ public class FileSystemSourceStorage implements IStorageSourceService<File> {
 //            e.printStackTrace();
 //        }
 //    }
-
-    @Override
-    public InputStream findSongBySource(Source source) throws IOException {
-        Path path = Paths.get(source.getPath(), source.getName());
-        return new FileSystemResource(path).getInputStream();
-    }
     //this work by byte[]
     //       public ResponseEntity<byte[]> findSongBySource(Source source) {
 //        byte[] targetFile = new byte[0];
@@ -105,52 +148,6 @@ public class FileSystemSourceStorage implements IStorageSourceService<File> {
 //                .header("targetFile-disposition", "attachment; filename=\"" + source.getName() + "\"")
 //                .body(targetFile);
 //    }
-
-    @Override
-    public boolean isExist(Source source) {
-        String sourceFilePath = source.getPath();
-        String sourceFileName = source.getName();
-        return Files.exists(Paths.get(sourceFilePath, sourceFileName));
-    }
-
-    @Override
-    public void delete(Source source) {
-        String sourceFilename = source.getName();
-        String sourceFilePath = source.getPath();
-
-        try {
-            Files.delete(Paths.get(sourceFilePath, sourceFilename));
-        } catch (IOException e) {
-            System.out.println("Exception IN: delete(Source source)" + e.getMessage());
-        }
-    }
-
-    @Override
-    public Source saveZip(Resource resource, String originalFilename, String contentType) {
-        Source source = null;
-
-        if (!Files.exists(Paths.get(pathLocalStorage, originalFilename))) {
-            try {
-                Files.copy(resource.getInputStream()
-                        , Paths.get(pathLocalStorage, originalFilename)
-                        , StandardCopyOption.REPLACE_EXISTING);
-
-                source = new Source(originalFilename
-                        , pathLocalStorage
-                        , resource.contentLength()
-                        , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
-                        , contentType);
-
-                source.setStorage_types(StorageTypes.FILE_SYSTEM);
-                source.setStorage_id(1L);
-                source.setSong_id(songIdCount);//TODO song_Id how autoIncrement or it must be equal to id in Song
-
-            } catch (IOException e) {
-                System.out.println("exception in public Source save()" + e.getMessage());
-            }
-        } else System.out.println("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
-        return source;
-    }
 }
 
 

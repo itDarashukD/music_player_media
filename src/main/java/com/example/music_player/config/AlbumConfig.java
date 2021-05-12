@@ -1,7 +1,7 @@
 package com.example.music_player.config;
 
 import com.example.music_player.entity.Album;
-import com.example.music_player.repository.MapperRepository;
+import com.example.music_player.repository.IAlbumRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class AlbumConfig {
 
     @Bean
-    CommandLineRunner commandLineRunner(MapperRepository repository) {
+    CommandLineRunner commandLineRunner(IAlbumRepository repository) {
 
         return args -> {
             Album album1 = new Album("name1",1965,"Babilon" );
@@ -18,7 +18,6 @@ public class AlbumConfig {
 
             repository.save(album1);
             repository.save(album2);
-
         };
     }
 }

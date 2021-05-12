@@ -8,5 +8,4 @@ public class SourceMetadata {
 
     private StorageTypes type;
     private String path;
-
 }

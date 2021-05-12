@@ -1,4 +1,4 @@
-package com.example.music_player.storage;
+package com.example.music_player.tetsPlayMusic;
 
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;

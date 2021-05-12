@@ -28,11 +28,6 @@ public class Song {
 
     private StorageTypes storageTypes;
 
-//    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-//            CascadeType.DETACH})
-//    @JoinColumn(name = "album_id")
-//    private Album album;
-
     public Song(Long album_id,String name, String notes, Integer year) {
             this.album_id = album_id;
         this.name = name;

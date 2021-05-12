@@ -1,8 +1,8 @@
 package com.example.music_player.storage;
 
-import com.example.music_player.config.MinIOConfig;
 import com.example.music_player.entity.Source;
 import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
 import io.minio.RemoveObjectArgs;
 import io.minio.UploadObjectArgs;
 import io.minio.errors.MinioException;
@@ -17,14 +17,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
-public class CloudMinIOStorage implements IStorageSourceService {
+public class CloudStorage implements IStorageSourceService {
 
     @Value("${cloud.MiniO.credentials.backed}")
     private String bucked;
@@ -32,24 +30,24 @@ public class CloudMinIOStorage implements IStorageSourceService {
     private String endpoint;
     @Value("${cloud.MiniO.credentials.path-cloud-storage}")
     private String pathCloudStorage;
-    private MinIOConfig minIOConfig;
+    private final MinioClient minioClient;
 
     @Autowired
-    public CloudMinIOStorage(MinIOConfig minIOConfig) {
-        this.minIOConfig = minIOConfig;
+    public CloudStorage(MinioClient minioClient) {
+        this.minioClient = minioClient;
     }
 
     @Override
     public Source save(MultipartFile multipartFile, Long songId) {
         try {
-            minIOConfig.minioClient().uploadObject(
+           minioClient.uploadObject(
                     UploadObjectArgs.builder()
                             .bucket(bucked)
                             .object(multipartFile.getOriginalFilename())
                             .filename(convertMultipartFileToFile(multipartFile).getName())
                             .build());
 
-            System.out.println("file is successfully uploaded as to bucket " + bucked);
+            System.out.println("file "+multipartFile.getName()+" is successfully uploaded as to bucket " + bucked);
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e.getMessage());
             System.out.println("HTTP trace: " + e.httpTrace());
@@ -71,9 +69,9 @@ public class CloudMinIOStorage implements IStorageSourceService {
                     , DigestUtils.md5Hex(resource.getInputStream())//TODO I can do this with UUID
                     , contentType);
 
-            source.setStorage_types(StorageTypes.AMAZON_S3);
+            source.setStorage_types(StorageTypes.CLOUD_STORAGE);
             source.setStorage_id(2L);
-            source.setSong_id(songId);//TODO song_Id how autoIncrement or it must be equal to id in Song
+            source.setSong_id(songId);
         } catch (IOException e) {
             System.out.println("Error occurred: " + e.getMessage());
         }
@@ -95,9 +93,8 @@ public class CloudMinIOStorage implements IStorageSourceService {
     @Override
     public boolean isExist(Source source) {
         Boolean isObjectExist = false;
-
         try {
-            InputStream stream = minIOConfig.minioClient().getObject(
+            InputStream stream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucked)
                             .object(source.getName())
@@ -119,7 +116,7 @@ public class CloudMinIOStorage implements IStorageSourceService {
     public void delete(Source source) {
         String sourceFilename = source.getName();
         try {
-            minIOConfig.minioClient().removeObject(
+            minioClient.removeObject(
                     RemoveObjectArgs
                             .builder()
                             .bucket(bucked)
@@ -136,10 +133,10 @@ public class CloudMinIOStorage implements IStorageSourceService {
     }
 
     @Override
-    public InputStream findSongBySource(Source source)  {
+    public InputStream findSongBySource(Source source) {
         InputStream stream = null;
         try {
-            stream = minIOConfig.minioClient().getObject(
+            stream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucked)
                             .object(source.getName())
@@ -154,22 +151,15 @@ public class CloudMinIOStorage implements IStorageSourceService {
         return stream;
     }
 
-
     @Override
     public Source saveZip(Resource resource, String name, String contentType) {
-        return null;
+        return new Source();
     }
-
-
-    @Override
-    public Stream<Path> loadAll() {
-        return null;
-    }
-
+}
 //    InputStream initialStream = multipartFile.getInputStream();
 //    byte[] buffer = new byte[initialStream.available()];
 //            initialStream.read(buffer);
 //            try (OutputStream outStream = new FileOutputStream(convertedFile)) {
 //        outStream.write(buffer);
 //    }
-}
+

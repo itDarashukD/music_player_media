@@ -6,8 +6,9 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface MapperRepository {
+public interface IAlbumRepository {
     @Insert("Insert into album(year,notes,name) values (#{year},#{notes},#{name})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id") //give me id of this inserting
     void save(Album album);
 
     @Update("Update Album set year= #{year}, notes= #{notes}, name= #{name} where id=#{id}")

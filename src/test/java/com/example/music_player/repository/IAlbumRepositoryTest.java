@@ -18,11 +18,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-public class MapperRepositoryTest {
+public class IAlbumRepositoryTest {
 
     private static Album album1;
     private static Album album2;
@@ -33,15 +34,14 @@ public class MapperRepositoryTest {
     private final String DELETE_ALL_FROM_ALBUM = "DELETE FROM album";
     private final String RESTART_COUNTER_ID_IN_TABLE_WITH_1 = "ALTER TABLE album AUTO_INCREMENT = 1;";
 
+    private final IAlbumRepository repository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private MapperRepository repository;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-//
-//    @Autowired
-//    private EntityManager entityManager;
+    public IAlbumRepositoryTest(IAlbumRepository repository, JdbcTemplate jdbcTemplate) {
+        this.repository = repository;
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @BeforeEach
     public void beforeEachMethod() {
@@ -149,7 +149,7 @@ public class MapperRepositoryTest {
     void findById(List<Album> input, Album output) {
         insertListRowsInTable(input);
         Album testAlbum1 = repository.findById(input.get(0).getId());
-      //  assertThat(testAlbum1).isEqualTo(output);
+       assertThat(testAlbum1).isEqualTo(output);
     }
 
     @ParameterizedTest

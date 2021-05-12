@@ -16,4 +16,7 @@ public interface ISourceRepository {
 
     @Delete("Delete from source where id=#{id}")
     void deleteById(@Param("id") Long id);
+
+    @Select("SELECT EXISTS(SELECT * FROM source WHERE name = #{name})")
+    Boolean isExistByName(@Param("name") String name);
 }

@@ -9,6 +9,4 @@ public class FileMetadata {
 
     private String name;
     private String url;
-
-
 }

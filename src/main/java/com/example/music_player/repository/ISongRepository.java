@@ -11,9 +11,11 @@ import java.util.List;
 public interface ISongRepository {
 
     @Insert("Insert into song(album_id,name,notes, year) values (#{album_id},#{name},#{notes},#{year})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void save(Song song);
 
     @Update("Update song set year= #{year}, notes= #{notes}, name= #{name} where id=#{id}")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id") //give me id of this inserting
     void update(Song song);
 
     @Delete("Delete from Song where id=#{id}")
@@ -29,8 +31,8 @@ public interface ISongRepository {
     @Select("SELECT * FROM song WHERE name = #{name}")
     Song findByName(@Param("name") String name);
 
-    @Select("SELECT * FROM song WHERE name = #{name}")
-    Song isExistByName(@Param("name") String name);
+    @Select("SELECT EXISTS(SELECT * FROM song WHERE name = #{name})")
+    Boolean isExistByName(@Param("name") String name);
 
     @Select("SELECT source.path FROM song CROSS JOIN source ON source.song_id=song.id WHERE song.name=#{name} LIMIT 1;")
     SourceMetadata findResourceBySongName(String name);//TODO запрос sql

@@ -22,10 +22,6 @@ public class Album {
     @NotBlank
     private String notes;
 
-//    @OneToMany(mappedBy = "album", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-//            CascadeType.DETACH})
-//    private List<Song> songs = new ArrayList<>();
-
     public Album(String name, Integer year, String notes) {
         this.name = name;
         this.year = year;
