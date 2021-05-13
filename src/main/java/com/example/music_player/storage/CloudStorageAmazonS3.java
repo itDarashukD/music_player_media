@@ -6,8 +6,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.example.music_player.annotation.StorageType;
 import com.example.music_player.entity.Source;
-import io.minio.GetObjectArgs;
-import io.minio.errors.MinioException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +19,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 @Service
 @StorageType(StorageTypes.CLOUD_STORAGE)
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
-    //  @Value("${path.cloud.storage}") //TODO may be do not do this
     @Value("${cloud.AmazonS3.credentials.path-cloud-storage}")
     private String pathCloudStorage;
     @Value("${cloud.AmazonS3.credentials.bucket.name}")
     private String bucketName;
-
     private final AmazonS3 s3Client;
 
     @Autowired
@@ -96,12 +90,10 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         return null;
     }
 
-
     @Override
     public void delete(Source source) {
         s3Client.deleteObject(bucketName, source.getName());
         System.out.println("file : " + source.getName() + " is successfully deleted from bucket " + bucketName);
-
     }
 
     @Override
@@ -109,9 +101,9 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         Boolean isObjectExist = false;
         S3Object s3Object = s3Client.getObject(bucketName, source.getName());
         S3ObjectInputStream s3InputStream = s3Object.getObjectContent();
-            if (s3InputStream != null) {
-                isObjectExist = true;
-            }
+        if (s3InputStream != null) {
+            isObjectExist = true;
+        }
         return isObjectExist;
     }
 

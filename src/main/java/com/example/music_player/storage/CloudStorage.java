@@ -24,13 +24,11 @@ import java.util.Objects;
 //@Service
 public class CloudStorage implements IStorageSourceService {
 
-  //  @Value("${cloud.MiniO.credentials.backed}")
-    @Value("${cloud.AmazonS3.credentials.bucket.name}")
+    @Value("${cloud.MiniO.credentials.backed}")
     private String bucked;
     @Value("${cloud.MiniO.credentials.endpoint}")
-     private String endpoint;
-    //@Value("${cloud.MiniO.credentials.path-cloud-storage}")
-    @Value("${cloud.AmazonS3.credentials.path-cloud-storage}")
+    private String endpoint;
+    @Value("${cloud.MiniO.credentials.path-cloud-storage}")
     private String pathCloudStorage;
     private final MinioClient minioClient;
 
@@ -42,14 +40,14 @@ public class CloudStorage implements IStorageSourceService {
     @Override
     public Source save(MultipartFile multipartFile, Long songId) {
         try {
-           minioClient.uploadObject(
+            minioClient.uploadObject(
                     UploadObjectArgs.builder()
                             .bucket(bucked)
                             .object(multipartFile.getOriginalFilename())
                             .filename(convertMultipartFileToFile(multipartFile).getName())
                             .build());
 
-            System.out.println("file "+multipartFile.getName()+" is successfully uploaded as to bucket " + bucked);
+            System.out.println("file " + multipartFile.getName() + " is successfully uploaded as to bucket " + bucked);
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e.getMessage());
             System.out.println("HTTP trace: " + e.httpTrace());
