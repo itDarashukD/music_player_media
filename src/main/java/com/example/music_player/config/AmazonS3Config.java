@@ -23,18 +23,17 @@ public class AmazonS3Config {
     @Value("${cloud.AmazonS3.credentials.service.endpoint}")
     private String endpoint;
 
-    AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
-
-//    ClientConfiguration clientConfiguration = new ClientConfiguration();
-//    clientConfiguration.setSignerOverride("AWSS3V4SignerType");
-
     @Bean
     public AmazonS3 s3Client() {
+        AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+
         AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withPathStyleAccessEnabled(true)
-//                .withClientConfiguration(clientConfiguration)
+                .withClientConfiguration(clientConfiguration)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
         return s3Client;
