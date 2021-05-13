@@ -21,14 +21,16 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-@Service
+//@Service
 public class CloudStorage implements IStorageSourceService {
 
-    @Value("${cloud.MiniO.credentials.backed}")
+  //  @Value("${cloud.MiniO.credentials.backed}")
+    @Value("${cloud.AmazonS3.credentials.bucket.name}")
     private String bucked;
     @Value("${cloud.MiniO.credentials.endpoint}")
-    private String endpoint;
-    @Value("${cloud.MiniO.credentials.path-cloud-storage}")
+     private String endpoint;
+    //@Value("${cloud.MiniO.credentials.path-cloud-storage}")
+    @Value("${cloud.AmazonS3.credentials.path-cloud-storage}")
     private String pathCloudStorage;
     private final MinioClient minioClient;
 

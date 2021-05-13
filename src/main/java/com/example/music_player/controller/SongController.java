@@ -64,7 +64,7 @@ public class SongController {
         return "Ok";
     }
 
-    @GetMapping("/file/{id}")
+    @GetMapping("/file/{id}") //TODO ResponseEntity replace from service
     public ResponseEntity<byte[]> getFileBySourceId(@PathVariable Long id) throws IOException {
         return sourceService.findById(id);
     }

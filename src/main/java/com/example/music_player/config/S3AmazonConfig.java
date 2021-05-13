@@ -12,17 +12,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class S3AmazonConfig {
 
-    @Value("${cloud.MiniO.credentials.access-key}")
-    private String  accessKey;
-    @Value("${cloud.MiniO.credentials.secret-key}")
+    @Value("${cloud.AmazonS3.credentials.access-key}")
+    private String accessKey;
+    @Value("${cloud.AmazonS3.credentials.secret-key}")
     private String accessSecret;
-    @Value("${cloud.aws.region.static}")
+    @Value("${cloud.AmazonS3.credentials.region}")
     private String region;
 
     @Bean
-    public AmazonS3 s3Client(){
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey,accessSecret);
-        return AmazonS3ClientBuilder.standard()
+    public AmazonS3 s3Client() {
+        AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
+        return AmazonS3ClientBuilder
+                .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region).build();
     }
