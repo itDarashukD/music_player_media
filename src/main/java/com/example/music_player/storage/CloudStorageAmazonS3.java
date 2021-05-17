@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-//@Service
+@Service
 @StorageType(StorageTypes.CLOUD_STORAGE)
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
