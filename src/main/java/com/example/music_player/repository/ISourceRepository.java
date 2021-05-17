@@ -14,6 +14,9 @@ public interface ISourceRepository {
     @Select("SELECT * FROM source WHERE id = #{id}")
     Source findById(@Param("id") Long id);
 
+    @Select("SELECT * FROM source WHERE name = #{name}")
+    Source findByName(@Param("name") String name);
+
     @Delete("Delete from source where id=#{id}")
     void deleteById(@Param("id") Long id);
 

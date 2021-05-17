@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RequestMapping("/song")
@@ -56,20 +57,26 @@ public class SongController {
             @RequestParam("songName") String songName,
             @RequestParam("songYear") Integer songYear,
             @RequestParam("songNotes") String songNotes,
-            @RequestParam("file") MultipartFile multipartFile) {
+            @RequestParam("file")MultipartFile multipartFile) {
+
         Song song = new Song(albumId, songName, songNotes, songYear);
         songService.addSong(song);
         Long songIdFromDB = song.getId();
-        sourceService.save(multipartFile,song,songIdFromDB);
+        sourceService.save(multipartFile, song, songIdFromDB);
         return "Ok";
     }
 
-    @GetMapping("/file/{id}") //TODO ResponseEntity replace from service
-    public ResponseEntity<byte[]> getFileBySourceId(@PathVariable Long id) throws IOException {
-        return sourceService.findById(id);
+    @GetMapping("/file/{name}")
+    public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name) throws IOException {
+        byte[] content = sourceService.findByName(name);
+
+        return ResponseEntity
+                .ok()
+                .contentLength(content.length)
+                .header("Content-type", "application/octet-stream")
+                .body(content);
     }
 
-    //review that file isExist in filePath by sourceId
     @GetMapping("/exist/{id}")
     boolean existBySourceId(@PathVariable Long id) {
         return sourceService.isExist(id);
@@ -80,11 +87,10 @@ public class SongController {
         sourceService.delete(id);
         return "ok";
     }
-
     //        Path filepath = Paths.get(multipartFile.toString(), multipartFile.getOriginalFilename());
     //        songService.saveSource(multipartFile.getInputStream(),filepath);
-    @PostMapping("/uploadFiles")  //TODO for ZIP file
-    public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files) {
-        return sourceService.saveFiles(files);
-    }
+//    @PostMapping("/uploadFiles")  //TODO for ZIP file
+//    public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files) {
+//        return sourceService.saveFiles(files);
+//    }
 }

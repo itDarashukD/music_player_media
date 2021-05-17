@@ -17,13 +17,13 @@ public class StorageFactory {
     }
 
     public void save(MultipartFile multipartFile, Long songId) throws Exception {   //TODO amazon
-        if (multipartFile.getContentType().equals("mp3") || multipartFile.getContentType().equals("wav")) {
-            storageFactoryMap.get(StorageTypes.valueOf("FILE_SYSTEM")).save(multipartFile,songId);
-        }if (multipartFile.getContentType().equals("zip")){
-            storageFactoryMap.get(StorageTypes.valueOf("AMAZON_S3")).saveZip(multipartFile.getResource()
-            , multipartFile.getOriginalFilename()
-            , multipartFile.getContentType());
-        }
+//        if (multipartFile.getContentType().equals("mp3") || multipartFile.getContentType().equals("wav")) {
+//            storageFactoryMap.get(StorageTypes.valueOf("FILE_SYSTEM")).save(, multipartFile, , songId);
+//        }if (multipartFile.getContentType().equals("zip")){
+//            storageFactoryMap.get(StorageTypes.valueOf("AMAZON_S3")).saveZip(multipartFile.getResource()
+//            , multipartFile.getOriginalFilename()
+//            , multipartFile.getContentType());
+//        }
     }
 }
 //    private FileSystemSourceStorage fileSystemSourceStorage;

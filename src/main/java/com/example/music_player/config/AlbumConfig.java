@@ -16,8 +16,8 @@ public class AlbumConfig {
             Album album1 = new Album("name1",1965,"Babilon" );
             Album album2 = new Album( "name2",1981,"Dance queen" );
 
-            repository.save(album1);
-            repository.save(album2);
+//            repository.save(album1);
+//            repository.save(album2);
         };
     }
 }
