@@ -1,43 +1,72 @@
 package com.example.music_player.storage;
 
 
+import com.example.music_player.entity.Source;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import static java.lang.System.out;
 
 @Component
 public class StorageFactory {
-//this code will be working with @Annotation
-    private Map<StorageTypes, IStorageSourceService> storageFactoryMap = new HashMap<>();
 
-    public void getStorage(StorageTypes types, IStorageSourceService storageSourceService) {
-        storageFactoryMap.put(types, storageSourceService);
+    @Autowired
+    private final Collection<IStorageSourceService> storagesList;
+
+    public StorageFactory(Collection<IStorageSourceService> storagesList) {
+        this.storagesList = storagesList;
     }
 
-    public void save(MultipartFile multipartFile, Long songId) throws Exception {   //TODO amazon
-//        if (multipartFile.getContentType().equals("mp3") || multipartFile.getContentType().equals("wav")) {
-//            storageFactoryMap.get(StorageTypes.valueOf("FILE_SYSTEM")).save(, multipartFile, , songId);
-//        }if (multipartFile.getContentType().equals("zip")){
-//            storageFactoryMap.get(StorageTypes.valueOf("AMAZON_S3")).saveZip(multipartFile.getResource()
-//            , multipartFile.getOriginalFilename()
-//            , multipartFile.getContentType());
-//        }
+    public void prepareStorageForStorageMap() {
+        for (IStorageSourceService storage : storagesList
+        ) {
+            if (storage instanceof FileSystemSourceStorage) {
+                putStorage(StorageTypes.FILE_SYSTEM, storage);
+            } else if (storage instanceof CloudStorageAmazonS3) {
+                putStorage(StorageTypes.CLOUD_STORAGE, storage);
+            }
+        }
+    }
+
+    private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
+
+    public void putStorage(StorageTypes types, IStorageSourceService storageSourceService) {
+        storagesMap.put(types, storageSourceService);
+    }
+
+    public Source save(InputStream inputStream, String filename, String contentType, StorageTypes storageType) {
+        prepareStorageForStorageMap();
+
+        //if we want to save file into both storage:
+        for(Entry<StorageTypes,IStorageSourceService> var : storagesMap.entrySet()) {
+            return var.getValue().save(inputStream, filename, contentType);
+        }
+
+        //if we want to choose storage in who will be save file
+        if (storageType.equals(StorageTypes.FILE_SYSTEM)) {
+            return storagesMap.get(storageType).save(inputStream, filename, contentType);
+        } else if (storageType.equals(StorageTypes.CLOUD_STORAGE)) {
+            return storagesMap.get(storageType).save(inputStream, contentType, contentType);
+        }
+        return null;
+    }
+
+    public void delete(Source source) {
+        storagesMap.get(source.getStorage_types()).delete(source);
+    }
+
+    public boolean isExist(Source source) {
+        return storagesMap.get(source.getStorage_types()).isExist(source);
+    }
+
+    public InputStream findSongBySource(Source source) throws IOException {
+        return storagesMap.get(source.getStorage_types()).findSongBySource(source);
     }
 }
-//    private FileSystemSourceStorage fileSystemSourceStorage;
-//    private CloudSourceStorage cloudSourceStorage;
-//    @Autowired
-//    public StorageFactory(FileSystemSourceStorage fileSystemSourceStorage, CloudSourceStorage cloudSourceStorage) {
-//        this.fileSystemSourceStorage = fileSystemSourceStorage;
-//        this.cloudSourceStorage = cloudSourceStorage;
-//    }
-//
-//    public void save(Resource resource, String name, String contentType) throws Exception {   //TODO amazon
-//        if (contentType.equals("mp3") || contentType.equals("wav")) {
-//            fileSystemSourceStorage .save(resource, name, contentType);
-//
-//        }if (contentType.equals("zip")){
-//            cloudSourceStorage.save(resource, name, contentType);
-//        }

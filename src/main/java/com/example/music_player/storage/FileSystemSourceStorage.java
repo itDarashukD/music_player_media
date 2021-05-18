@@ -4,6 +4,7 @@ import com.example.music_player.annotation.StorageType;
 import com.example.music_player.entity.Source;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
+
 @StorageType(StorageTypes.FILE_SYSTEM)
-public class FileSystemSourceStorage implements IStorageSourceService<File> {
+public class FileSystemSourceStorage implements IStorageSourceService {
 
     @Value("${path.local.storage}")
     private String pathLocalStorage;

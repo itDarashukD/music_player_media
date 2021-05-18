@@ -4,6 +4,7 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
+import com.example.music_player.storage.StorageFactory;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,14 @@ public class SourceService implements ISourceService {
 
     private final IStorageSourceService storageSourceService;
     private final ISourceRepository sourceRepository;
+    private final StorageFactory storageFactory;
+//    private final StorageChooser storageChooser;
 
     @Autowired
-    public SourceService(IStorageSourceService storageSourceService
-            , ISourceRepository sourceRepository) {
+    public SourceService(IStorageSourceService storageSourceService, ISourceRepository sourceRepository, StorageFactory storageFactory) {
         this.storageSourceService = storageSourceService;
         this.sourceRepository = sourceRepository;
+        this.storageFactory = storageFactory;
     }
 
     @Transactional
@@ -48,6 +51,7 @@ public class SourceService implements ISourceService {
     public byte[] findByName(String name) throws IOException {
         Source source = Optional.ofNullable(sourceRepository.findByName(name))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
+        //   source.setStorage_id(storage_id);
         return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
     }
 

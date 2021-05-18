@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-//@Service
+@Service
+@Primary
 @StorageType(StorageTypes.CLOUD_STORAGE)
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -26,14 +28,11 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     private String pathCloudStorage;
     @Value("${cloud.AmazonS3.credentials.bucket.name}")
     private String bucketName;
-    private final AmazonS3 s3Client;
-    private File tempFile;
-    private File fileObject;
 
     @Autowired
-    public CloudStorageAmazonS3(AmazonS3 s3Client) {
-        this.s3Client = s3Client;
-    }
+    private AmazonS3 s3Client;
+    private File tempFile;
+    private File fileObject;
 
     public Source save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);

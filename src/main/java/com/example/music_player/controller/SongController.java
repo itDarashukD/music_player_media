@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 @RequestMapping("/song")
@@ -58,7 +57,6 @@ public class SongController {
             @RequestParam("songYear") Integer songYear,
             @RequestParam("songNotes") String songNotes,
             @RequestParam("file")MultipartFile multipartFile) {
-
         Song song = new Song(albumId, songName, songNotes, songYear);
         songService.addSong(song);
         Long songIdFromDB = song.getId();
@@ -67,9 +65,9 @@ public class SongController {
     }
 
     @GetMapping("/file/{name}")
-    public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name) throws IOException {
+    public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
+                                                  ) throws IOException {
         byte[] content = sourceService.findByName(name);
-
         return ResponseEntity
                 .ok()
                 .contentLength(content.length)
