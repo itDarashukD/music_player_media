@@ -20,20 +20,22 @@ import java.io.InputStream;
 
 @Service
 @StorageType(StorageTypes.CLOUD_STORAGE)
-public class CloudStorageAmazonS3 implements IStorageSourceService {
+public class CloudStorageAmazonS3 extends StorageChooser {
 
     @Value("${cloud.AmazonS3.credentials.path-cloud-storage}")
     private String pathCloudStorage;
     @Value("${cloud.AmazonS3.credentials.bucket.name}")
     private String bucketName;
-    private final AmazonS3 s3Client;
+
+    @Autowired
+    private AmazonS3 s3Client;
     private File tempFile;
     private File fileObject;
 
-    @Autowired
-    public CloudStorageAmazonS3(AmazonS3 s3Client) {
-        this.s3Client = s3Client;
-    }
+
+//    public CloudStorageAmazonS3(AmazonS3 s3Client) {
+//        this.s3Client = s3Client;
+//    }
 
     public Source save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);

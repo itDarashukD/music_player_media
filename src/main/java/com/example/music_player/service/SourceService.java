@@ -45,9 +45,10 @@ public class SourceService implements ISourceService {
         }
     }
 
-    public byte[] findByName(String name) throws IOException {
+    public byte[] findByName(String name, Long storageTypeId) throws IOException {
         Source source = Optional.ofNullable(sourceRepository.findByName(name))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
+        source.setStorage_id(storageTypeId);
         return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
     }
 

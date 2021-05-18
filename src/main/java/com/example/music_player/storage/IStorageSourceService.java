@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Qualifier("CloudStorageAmazonS3","FileSystemSourceStorage");
+
 public interface IStorageSourceService {
 
     //-	save data, autogenerates object key; returns object key and object hash to caller
@@ -21,6 +21,8 @@ public interface IStorageSourceService {
 
     //-	get data by key
    InputStream findSongBySource(Source source) throws IOException;
+
+
 
  //   Source saveZip(Resource resource,String name,String contentType)  ;
 
