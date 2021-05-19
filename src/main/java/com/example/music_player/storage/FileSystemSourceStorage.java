@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
-
 @StorageType(StorageTypes.FILE_SYSTEM)
 public class FileSystemSourceStorage implements IStorageSourceService {
 

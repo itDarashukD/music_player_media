@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Service
-@Primary
+
 @StorageType(StorageTypes.CLOUD_STORAGE)
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 

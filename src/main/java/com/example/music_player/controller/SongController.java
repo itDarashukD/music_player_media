@@ -1,8 +1,10 @@
 package com.example.music_player.controller;
 
 import com.example.music_player.entity.Song;
+import com.example.music_player.entity.Storage;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
+import com.example.music_player.storage.StorageTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,8 +68,8 @@ public class SongController {
 
     @GetMapping("/file/{name}")
     public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
-                                                  ) throws IOException {
-        byte[] content = sourceService.findByName(name);
+            , @RequestParam("storage_type") StorageTypes storage_type) throws IOException {
+        byte[] content = sourceService.findByName(name,storage_type);
         return ResponseEntity
                 .ok()
                 .contentLength(content.length)
