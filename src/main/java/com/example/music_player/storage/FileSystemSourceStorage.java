@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @StorageType(StorageTypes.FILE_SYSTEM)
@@ -25,7 +28,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     private Path path;
 
     @Override
-    public Source save(InputStream inputStream, String originalFilename, String contentType) {
+    public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         path = Paths.get(pathLocalStorage, originalFilename);
         if (!Files.exists(path)) {
             try {
@@ -39,7 +42,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
         return createSource(originalFilename, contentType);
     }
 
-    private Source createSource(String originalFilename, String contentType) {
+    private List<Source> createSource(String originalFilename, String contentType) {
         File file = new File(String.valueOf(path));
         Source source = new Source(originalFilename
                 , pathLocalStorage
@@ -49,7 +52,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
 
         source.setStorage_types(StorageTypes.FILE_SYSTEM);
         source.setStorage_id(1L);
-        return source;
+        return Collections.singletonList(source);
     }
 
     @Override

@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Service
-
 @StorageType(StorageTypes.CLOUD_STORAGE)
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -34,13 +36,13 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     private File tempFile;
     private File fileObject;
 
-    public Source save(InputStream inputStream, String originalFilename, String contentType) {
+    public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);
         s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, fileObject));
         return createSource(originalFilename, contentType);
     }
 
-    private Source createSource(String originalFilename, String contentType) {
+    private List<Source> createSource(String originalFilename, String contentType) {
         Source source = new Source(originalFilename
                 , pathCloudStorage
                 , fileObject.length()
@@ -51,7 +53,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         source.setStorage_id(2L);
         fileObject.delete();
         tempFile.deleteOnExit();
-        return source;
+        return Collections.singletonList(source);
     }
 
     private File putInputStreamToFile(InputStream inputStream) {

@@ -4,6 +4,7 @@ package com.example.music_player.storage;
 import com.example.music_player.entity.Source;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -11,8 +12,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 @Component
-public class StorageRouter {//implements IStorageSourceService{
-
+@Primary
+public class StorageRouter implements IStorageSourceService {
 
     private final Collection<IStorageSourceService> storagesList;
     private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
@@ -32,10 +33,11 @@ public class StorageRouter {//implements IStorageSourceService{
 
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
+        Source returnSource = null;
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
         for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
-            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType);
+            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
         return sourceList;
