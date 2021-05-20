@@ -1,7 +1,6 @@
 package com.example.music_player.service;
 
 import com.example.music_player.entity.Song;
-import com.example.music_player.entity.Storage;
 import com.example.music_player.storage.StorageTypes;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +14,7 @@ public interface ISourceService {
 
       boolean isExist(Long id);
 
-      void delete(Long id);
+      void delete(String name);
     //save many files for ZIP file
  //     ResponseEntity<String> saveFiles(MultipartFile[] files);
 }

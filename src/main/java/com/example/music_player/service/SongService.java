@@ -11,7 +11,7 @@ import java.util.Optional;
 
 
 @Service
-public class SongService implements ISongService{
+public class SongService implements ISongService {
 
     private final ISongRepository songRepository;
 
@@ -52,6 +52,10 @@ public class SongService implements ISongService{
 
     public void deleteById(Long song_Id) {
         songRepository.deleteById(song_Id);
+    }
+
+    public void deleteByName(String name) {
+        songRepository.deleteByName(name);
     }
 
     public Boolean isExistByName(String name) {

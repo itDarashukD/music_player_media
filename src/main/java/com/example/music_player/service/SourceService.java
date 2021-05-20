@@ -19,14 +19,11 @@ import java.util.Optional;
 @Service
 public class SourceService implements ISourceService {
 
-    //   private final IStorageSourceService storageSourceService;
     private final ISourceRepository sourceRepository;
     private final StorageRouter storageRouter;
-//    private final StorageChooser storageChooser;
 
     @Autowired
     public SourceService(ISourceRepository sourceRepository, StorageRouter storageRouter) {
-        //  this.storageSourceService = storageSourceService;
         this.sourceRepository = sourceRepository;
         this.storageRouter = storageRouter;
     }
@@ -52,7 +49,7 @@ public class SourceService implements ISourceService {
     }
 
     public byte[] findByName(String name, StorageTypes storage_type) throws IOException {
-        Source source = Optional.ofNullable(sourceRepository.findByName(name))
+        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
         return IOUtils.toByteArray(storageRouter.findSongBySource(source));
@@ -64,12 +61,13 @@ public class SourceService implements ISourceService {
         return storageRouter.isExist(source);
     }
 
-    // @Transactional
-    public void delete(Long id) {
-        Source source = Optional.ofNullable(sourceRepository.findById(id))
-                .orElseThrow(() -> new IllegalStateException("source with " + id + " do not fined"));
-        storageRouter.delete(source);
-        sourceRepository.deleteById(id);
+    public void delete(String name) {
+        List<Source> sourceList = Optional.ofNullable(sourceRepository.findAllByName(name))//TODO list by names
+                .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
+        sourceList.forEach((source) -> {
+            storageRouter.delete(source);
+            sourceRepository.deleteById(source.getId());
+        });
     }
 //    //save many files for ZIP file
 //    public ResponseEntity<String> saveFiles(MultipartFile[] files) {
@@ -90,4 +88,3 @@ public class SourceService implements ISourceService {
 //        }
 //    }
 }
-

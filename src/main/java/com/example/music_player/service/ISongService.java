@@ -17,4 +17,7 @@ public interface ISongService {
     void deleteById(Long song_Id);
 
     Boolean isExistByName(String name);
+
+    void deleteByName(String name);
 }
+

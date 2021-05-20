@@ -1,7 +1,10 @@
 package com.example.music_player.repository;
 
 import com.example.music_player.entity.Source;
+import com.example.music_player.storage.StorageTypes;
 import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface ISourceRepository {
@@ -16,6 +19,14 @@ public interface ISourceRepository {
 
     @Select("SELECT * FROM source WHERE name = #{name}")
     Source findByName(@Param("name") String name);
+
+    @Select("SELECT * FROM source WHERE name = #{name}")
+    List<Source> findAllByName(@Param("name") String name);
+
+    @Select("SELECT * FROM source WHERE name = #{name} and storage_types = #{storage_types}")
+    Source findByNameAndStorageType(@Param("name") String name,
+                                    @Param("storage_types")StorageTypes storage_types);
+
 
     @Delete("Delete from source where id=#{id}")
     void deleteById(@Param("id") Long id);

@@ -21,6 +21,9 @@ public interface ISongRepository {
     @Delete("Delete from Song where id=#{id}")
     void deleteById(Long id);
 
+    @Delete("Delete from Song where name=#{name}")
+    void deleteByName(String name);
+
     @Result(column = "year", property = "year")
     @Select("SELECT * FROM song WHERE id = #{id}")
     Song findById(@Param("id") Long id);

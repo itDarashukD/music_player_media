@@ -1,7 +1,6 @@
 package com.example.music_player.controller;
 
 import com.example.music_player.entity.Song;
-import com.example.music_player.entity.Storage;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
 import com.example.music_player.storage.StorageTypes;
@@ -52,6 +51,11 @@ public class SongController {
         songService.deleteById(song_id);
     }
 
+    @DeleteMapping(value = "/deleteSongByName/{songName}")
+    public void deleteByName( @PathVariable String songName) {
+        songService.deleteByName(songName);
+    }
+
     @PostMapping("/upload")
     public String saveFile(
             @RequestParam("albumId") Long albumId,
@@ -74,6 +78,7 @@ public class SongController {
                 .ok()
                 .contentLength(content.length)
                 .header("Content-type", "application/octet-stream")
+                .header("Content-disposition", "attachment; filename=\"" + name + "\"")
                 .body(content);
     }
 
@@ -82,9 +87,10 @@ public class SongController {
         return sourceService.isExist(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String deleteBySourceId(@PathVariable Long id) {
-        sourceService.delete(id);
+    @DeleteMapping("/delete/{name}")
+    public String deleteBySourceId(@PathVariable String name) {
+        sourceService.delete(name);
+        songService.deleteByName(name);
         return "ok";
     }
     //        Path filepath = Paths.get(multipartFile.toString(), multipartFile.getOriginalFilename());
