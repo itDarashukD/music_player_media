@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 @Component
-public class StorageRouter {
+public class StorageRouter {//implements IStorageSourceService{
 
 
     private final Collection<IStorageSourceService> storagesList;

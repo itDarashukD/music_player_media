@@ -18,6 +18,6 @@ public interface ISongService {
 
     Boolean isExistByName(String name);
 
-    void deleteByName(String name);
+    void deleteSongByName(String name);
 }
 

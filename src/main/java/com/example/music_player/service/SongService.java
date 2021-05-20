@@ -54,7 +54,7 @@ public class SongService implements ISongService {
         songRepository.deleteById(song_Id);
     }
 
-    public void deleteByName(String name) {
+    public void deleteSongByName(String name) {
         songRepository.deleteByName(name);
     }
 

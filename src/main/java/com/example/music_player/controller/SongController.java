@@ -53,7 +53,7 @@ public class SongController {
 
     @DeleteMapping(value = "/deleteSongByName/{songName}")
     public void deleteByName( @PathVariable String songName) {
-        songService.deleteByName(songName);
+        songService.deleteSongByName(songName);
     }
 
     @PostMapping("/upload")
@@ -88,9 +88,9 @@ public class SongController {
     }
 
     @DeleteMapping("/delete/{name}")
-    public String deleteBySourceId(@PathVariable String name) {
+    public String deleteSourceBySongName(@PathVariable String name) {
         sourceService.delete(name);
-        songService.deleteByName(name);
+        songService.deleteSongByName(name);
         return "ok";
     }
     //        Path filepath = Paths.get(multipartFile.toString(), multipartFile.getOriginalFilename());
