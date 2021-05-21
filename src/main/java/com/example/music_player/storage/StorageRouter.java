@@ -33,7 +33,6 @@ public class StorageRouter implements IStorageSourceService {
 
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
-        Source returnSource = null;
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
         for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
