@@ -20,7 +20,8 @@ import java.nio.file.StandardCopyOption;
 
 @SpringBootTest(properties = "application-test.properties")
 class FileSystemSourceStorageTest {
-    //  @Value("${path.test.files}") //TODO why it invisible?
+
+    // @Value("${path.test.files}") //TODO why it invisible?
     private String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests";
     private Source source;
     private String sourceFilename;

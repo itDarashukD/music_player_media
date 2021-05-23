@@ -2,9 +2,9 @@ package com.example.music_player.storage;
 
 import com.example.music_player.annotation.StorageType;
 import com.example.music_player.entity.Source;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @StorageType(StorageTypes.FILE_SYSTEM)
 public class FileSystemSourceStorage implements IStorageSourceService {
@@ -36,9 +36,9 @@ public class FileSystemSourceStorage implements IStorageSourceService {
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                System.out.println("exception in public Source save()" + e.getMessage());
+                log.error("IN FileSystemSourceStorage save() :" + e.getMessage());
             }
-        } else System.out.println("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
+        } else log.info("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
         return createSource(originalFilename, contentType);
     }
 
@@ -75,7 +75,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
         try {
             Files.delete(Paths.get(sourceFilePath, sourceFilename));
         } catch (IOException e) {
-            System.out.println("Exception IN: delete(Source source)" + e.getMessage());
+            log.error("IN FileSystemSourceStorage delete() :" + e.getMessage());
         }
     }
 //    @Override //TODO maybe this method is redundant

@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -28,7 +27,6 @@ public class CloudStorageAmazonS3Test {
     private TransferManager tm;
     private ProgressListener progressListener;
     private String bucketName = "music-player-bucked";
-
 
     @Autowired
     private AmazonS3 s3Client;
@@ -54,12 +52,14 @@ public class CloudStorageAmazonS3Test {
         File file = mock(File.class);
         PutObjectResult s3Result = mock(PutObjectResult.class);
         Mockito.when(s3Client.putObject(new PutObjectRequest(bucketName, file.getName(), file))).thenReturn(s3Result);
+
         when(file.getName()).thenReturn(KEY_NAME);
         PutObjectRequest request = new PutObjectRequest(bucketName, file.getName(), file);
         request.setGeneralProgressListener(progressListener);
         Upload upload = tm.upload(request);
         assertThat(upload).isNotNull();
-//        verify(s3Client).putObject(request);
+        //   verify(s3Client).putObject(request);
+
 //        File file = mock(File.class);
 //        PutObjectResult result = mock(PutObjectResult.class);
 //        when(s3Client.putObject(anyString(), anyString(), (File) any())).thenReturn(result);
