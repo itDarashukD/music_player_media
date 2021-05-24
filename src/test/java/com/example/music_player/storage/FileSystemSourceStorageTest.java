@@ -6,8 +6,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,17 +19,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
+//
+//@ContextConfiguration(initializers = ConfigFileApplicationContextInitializer.class)
 
 @SpringBootTest(properties = "application-test.properties")
 class FileSystemSourceStorageTest {
 
-    // @Value("${path.test.files}") //TODO why it invisible?
+     // @Value("${path.test.files}") //TODO why it invisible?
     private String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests";
     private Source source;
     private String sourceFilename;
     private String sourceFilePath;
     private Path pathTestFile;
+    private File tempFile;
 
     @BeforeEach
     public void beforeEachMethod() throws IOException {
@@ -53,7 +58,7 @@ class FileSystemSourceStorageTest {
 
     @Test
     void save() throws Exception {
-        File tempFile = File.createTempFile("test", ".tmp");
+        tempFile = File.createTempFile("test", ".tmp", new File(PATH_TEST_FILES));
         InputStream targetStream = FileUtils.openInputStream(tempFile);
         Path path = Paths.get(PATH_TEST_FILES + tempFile.getName());
         Files.copy(
@@ -64,6 +69,8 @@ class FileSystemSourceStorageTest {
 
         Assertions.assertTrue(file.exists());
         Assertions.assertEquals(file.length(), tempFile.length());
+        tempFile.deleteOnExit();
+        file.delete();
     }
 
     @Test

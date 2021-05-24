@@ -23,9 +23,10 @@ public interface ISourceRepository {
     @Select("SELECT * FROM source WHERE name = #{name}")
     List<Source> findAllByName(@Param("name") String name);
 
-    @Select("SELECT * FROM source WHERE name = #{name} and storage_types = #{storage_types}")
+    @Select("SELECT * FROM source WHERE name = #{name} and storage_types = #{storage_types} and file_type = #{file_type}")
     Source findByNameAndStorageType(@Param("name") String name,
-                                    @Param("storage_types")StorageTypes storage_types);
+                                    @Param("storage_types")StorageTypes storage_types,
+                                    @Param("file_type") Source file_type);
 
 
     @Delete("Delete from source where id=#{id}")

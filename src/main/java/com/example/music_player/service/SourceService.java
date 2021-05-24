@@ -4,11 +4,9 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
-import com.example.music_player.storage.StorageRouter;
 import com.example.music_player.storage.StorageTypes;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,10 +55,11 @@ public class SourceService implements ISourceService {
         }
     }
 
-    public byte[] findByName(String name, StorageTypes storage_type) throws IOException {
-        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type))
+    public byte[] findByName(String name, StorageTypes storage_type, Source file_type) throws IOException {
+        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type,file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
+
         return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
     }
 
