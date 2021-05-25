@@ -1,6 +1,9 @@
 package com.example.music_player.controller;
 
+import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,12 +18,18 @@ public class ActiveMqController {
 
     @Autowired
     private JmsTemplate jmsTemplate;
-    @Autowired
-    private Queue queue;
 
-    @GetMapping(value = "/{message}",produces = "text/html")
-    public String publishMessage(@PathVariable("message") String message) {
-        jmsTemplate.convertAndSend(queue, message);
-        return message + " pulished!";
+    @Value("${activemq.queue.name}")
+    private ActiveMQQueue queue;
+
+
+    @GetMapping(value = "/{message}", produces = "text/html")
+    public String publish(@PathVariable("message") final String message) {
+
+//        Click click = new Click();
+//        click.setCount(11);
+//        click.setName(message);
+//        jmsTemplate.convertAndSend(queue, click);
+        return "send is Ok!" + message;
     }
 }

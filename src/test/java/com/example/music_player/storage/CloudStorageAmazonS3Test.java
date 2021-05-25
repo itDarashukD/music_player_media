@@ -26,7 +26,7 @@ public class CloudStorageAmazonS3Test {
     private static final String KEY_NAME = "TestFile.mp3";
     private TransferManager tm;
     private ProgressListener progressListener;
-    private String bucketName = "music-player-bucked";
+    private final String bucketName = "music-player-bucked";
 
     @Autowired
     private AmazonS3 s3Client;

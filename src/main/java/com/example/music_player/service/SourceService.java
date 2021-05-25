@@ -5,8 +5,12 @@ import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
 import com.example.music_player.storage.StorageTypes;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,20 +20,21 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class SourceService implements ISourceService {
 
-    private final ISourceRepository sourceRepository;
-  //  private final StorageRouter storageRouter;
-    private final IStorageSourceService storageSourceService;
-//    @Autowired
-//    public SourceService(ISourceRepository sourceRepository, StorageRouter storageRouter) {
-//        this.sourceRepository = sourceRepository;
-//        this.storageRouter = storageRouter;
-//    }
+    @Value("${activemq.queue.name}")
+    private ActiveMQQueue queue;
 
-        @Autowired
-    public SourceService(ISourceRepository sourceRepository,  IStorageSourceService storageSourceService) {
+    private final ISourceRepository sourceRepository;
+    private final IStorageSourceService storageSourceService;
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    @Autowired
+    public SourceService(ISourceRepository sourceRepository, IStorageSourceService storageSourceService) {
         this.sourceRepository = sourceRepository;
         this.storageSourceService = storageSourceService;
     }
@@ -42,21 +47,28 @@ public class SourceService implements ISourceService {
             String contentType = multipartFile.getContentType();
             if (!sourceRepository.isExistByName(song.getName())) {
 
-            List<Source> source=  storageSourceService.save(inputStream, fileName, contentType);
+                List<Source> source = storageSourceService.save(inputStream, fileName, contentType);
                 source.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
                     sourceRepository.save(x);
+
+                    putSourceToQueue(x);
                 });
             } else {
-                System.out.println("file " + song.getName() + " in DB is Exist at this moment");
+               log.info("file " + song.getName() + " in DB is Exist at this moment");
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+           log.error("Exeption IN: save()" +e.getMessage());
         }
     }
 
-    public byte[] findByName(String name, StorageTypes storage_type, Source file_type) throws IOException {
-        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type,file_type))
+    public void putSourceToQueue(Source sourceToQueue) {
+        jmsTemplate.convertAndSend(queue, sourceToQueue);
+        log.info("IN putSourceToQueue: "+sourceToQueue  + " was put!");
+    }
+
+    public byte[] findByName(String name, StorageTypes storage_type, String file_type) throws IOException {
+        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
 
@@ -77,22 +89,5 @@ public class SourceService implements ISourceService {
             sourceRepository.deleteById(source.getId());
         });
     }
-//    //save many files for ZIP file
-//    public ResponseEntity<String> saveFiles(MultipartFile[] files) {
-//        List<String> fileNames = new ArrayList<>();
-//        try {
-//            Arrays.stream(files).forEach(file -> {
-//                storageSourceService.saveZip(file.getResource()
-//                        , file.getOriginalFilename()
-//                        , file.getContentType());
-//
-//                fileNames.add(file.getOriginalFilename());
-//            });
-//            String message = "Uploaded the files successfully: " + fileNames;
-//            return ResponseEntity.status(HttpStatus.OK).body(message);
-//        } catch (Exception e) {
-//            String message = "Fail to upload files!";
-//            return ResponseEntity.status(HttpStatus.OK).body(message);
-//        }
-//    }
+
 }

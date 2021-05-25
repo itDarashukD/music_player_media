@@ -6,11 +6,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +22,8 @@ import java.nio.file.StandardCopyOption;
 @SpringBootTest(properties = "application-test.properties")
 class FileSystemSourceStorageTest {
 
-     // @Value("${path.test.files}") //TODO why it invisible?
-    private String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests";
+    // @Value("${path.test.files}") //TODO why it invisible?
+    private final String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests";
     private Source source;
     private String sourceFilename;
     private String sourceFilePath;

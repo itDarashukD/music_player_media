@@ -10,12 +10,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Data
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Source {
+public class Source implements Serializable {
 
     @NotNull
     private Long id;
@@ -42,6 +43,12 @@ public class Source {
         this.path = path;
         this.size = size;
         this.checksum = checksum;
+        this.fileType = fileType;
+    }
+
+    public Source(String name, StorageTypes storage_types, String fileType) {
+        this.name = name;
+        this.storage_types = storage_types;
         this.fileType = fileType;
     }
 }

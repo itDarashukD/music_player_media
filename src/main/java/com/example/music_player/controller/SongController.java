@@ -63,8 +63,7 @@ public class SongController {
             @RequestParam("songName") String songName,
             @RequestParam("songYear") Integer songYear,
             @RequestParam("songNotes") String songNotes,
-            @RequestParam("file") MultipartFile multipartFile,
-            String fileType) {
+            @RequestParam("file") MultipartFile multipartFile) {
         Song song = new Song(albumId, songName, songNotes, songYear);
         songService.addSong(song);
         Long songIdFromDB = song.getId();
@@ -75,7 +74,7 @@ public class SongController {
     @GetMapping("/file/{name}")
     public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
             , @RequestParam("storage_type") StorageTypes storage_type
-            , @RequestParam("file_type") Source file_type) throws IOException {
+            , @RequestParam("file_type") String file_type) throws IOException {
         byte[] content = sourceService.findByName(name, storage_type,file_type);//Did addition file_type
         return ResponseEntity
                 .ok()
