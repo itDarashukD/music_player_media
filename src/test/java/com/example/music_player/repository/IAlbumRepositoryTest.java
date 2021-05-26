@@ -149,7 +149,7 @@ public class IAlbumRepositoryTest {
     void findById(List<Album> input, Album output) {
         insertListRowsInTable(input);
         Album testAlbum1 = repository.findById(input.get(0).getId());
-       assertThat(testAlbum1).isEqualTo(output);
+        assertThat(testAlbum1).isEqualTo(output);
     }
 
     @ParameterizedTest

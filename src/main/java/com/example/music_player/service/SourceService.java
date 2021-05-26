@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -46,16 +47,18 @@ public class SourceService implements ISourceService {
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
 
-      //      if (!sourceRepository.isExistByName(song.getName())) {
             if (!sourceRepository.isExistByNameAndFileType(song.getName(),contentType)) {
                 List<Source> source = storageSourceService.save(inputStream, fileName, contentType);
                 source.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
                     sourceRepository.save(x);
                     log.info("file " + x.getName() + " save in source repository");
-
-                    putSourceToQueue(x);
                 });
+
+                if (!Objects.requireNonNull(contentType).equals("audio/mpeg")) {
+                    putSourceToQueue(source.get(0));
+                }
+
             } else {
                log.info("file " + song.getName() + " in DB is Exist at this moment");
             }
@@ -66,7 +69,7 @@ public class SourceService implements ISourceService {
 
     public void putSourceToQueue(Source sourceToQueue) {
         jmsTemplate.convertAndSend(queue, sourceToQueue);
-        log.info("IN putSourceToQueue: "+sourceToQueue  + " was put!");
+        log.info("IN putSourceToQueue: "+sourceToQueue  + " was put in ActiveMQ queue!");
     }
 
     public byte[] findByName(String name, StorageTypes storage_type, String file_type) throws IOException {
