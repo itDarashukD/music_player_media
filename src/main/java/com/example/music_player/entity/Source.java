@@ -1,10 +1,7 @@
 package com.example.music_player.entity;
 
 import com.example.music_player.storage.StorageTypes;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,6 +11,7 @@ import java.io.Serializable;
 
 @Data
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Source implements Serializable {

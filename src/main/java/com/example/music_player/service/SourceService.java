@@ -45,12 +45,14 @@ public class SourceService implements ISourceService {
             InputStream inputStream = multipartFile.getInputStream();
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
-            if (!sourceRepository.isExistByName(song.getName())) {
 
+      //      if (!sourceRepository.isExistByName(song.getName())) {
+            if (!sourceRepository.isExistByNameAndFileType(song.getName(),contentType)) {
                 List<Source> source = storageSourceService.save(inputStream, fileName, contentType);
                 source.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
                     sourceRepository.save(x);
+                    log.info("file " + x.getName() + " save in source repository");
 
                     putSourceToQueue(x);
                 });

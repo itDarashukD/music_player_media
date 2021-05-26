@@ -23,6 +23,7 @@ public interface ISourceRepository {
     @Select("SELECT * FROM source WHERE name = #{name}")
     List<Source> findAllByName(@Param("name") String name);
 
+    @Result(column = "file_type", property = "fileType")
     @Select("SELECT * FROM source WHERE name = #{name} and storage_types = #{storage_types} and file_type = #{file_type}")
     Source findByNameAndStorageType(@Param("name") String name,
                                     @Param("storage_types") StorageTypes storage_types,
@@ -34,4 +35,8 @@ public interface ISourceRepository {
 
     @Select("SELECT EXISTS(SELECT * FROM source WHERE name = #{name})")
     Boolean isExistByName(@Param("name") String name);
+
+    @Select("SELECT EXISTS(SELECT * FROM source WHERE name = #{name} and file_type = #{file_type})")
+    Boolean isExistByNameAndFileType(@Param("name") String name,
+                          @Param("file_type") String file_type);
 }
