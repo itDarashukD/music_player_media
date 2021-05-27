@@ -6,6 +6,7 @@ import it.sauronsoftware.jave.EncoderException;
 import it.sauronsoftware.jave.EncodingAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.io.File;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class WavToMp3ConversationService implements IWavToMp3ConversationService
         return readyMp3File;
     }
 }
-//        File file = new File("C:\\Users\\Dzmitry_Darashuk\\Epam_MusicPlayer\\musik_files\\I-love-you.wav");
+
 
 
 

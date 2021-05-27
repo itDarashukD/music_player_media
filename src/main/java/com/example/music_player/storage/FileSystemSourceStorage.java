@@ -78,67 +78,6 @@ public class FileSystemSourceStorage implements IStorageSourceService {
             log.error("IN FileSystemSourceStorage delete() :" + e.getMessage());
         }
     }
-//    @Override //TODO maybe this method is redundant
-//    public Source saveZip(Resource resource, String originalFilename, String contentType) {
-//        Source source = null;
-//
-//        if (!Files.exists(Paths.get(pathLocalStorage, originalFilename))) {
-//            try {
-//                Files.copy(resource.getInputStream()
-//                        , Paths.get(pathLocalStorage, originalFilename)
-//                        , StandardCopyOption.REPLACE_EXISTING);
-//
-//                source = new Source(originalFilename
-//                        , pathLocalStorage
-//                        , resource.contentLength()
-//                        , DigestUtils.md5Hex(resource.getInputStream())
-//                        , contentType);
-//
-//                source.setStorage_types(StorageTypes.FILE_SYSTEM);
-//                source.setStorage_id(1L);
-//                source.setSong_id(songIdCount);
-//
-//            } catch (IOException e) {
-//                System.out.println("exception in public Source save()" + e.getMessage());
-//            }
-//        } else System.out.println("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
-//        return source;
-//    }
-    //inputStream save
-    //    @Override
-//    public void save(InputStream inputStream,Path path) {
-//
-//       String filePath = pathLocalStorage + "/" + originalFilename;
-//        Path filepath = Paths.get(dir.toString(), inputStream.getOriginalFilename());
-//        Path root = Paths.get(pathLocalStorage);
-//
-//        try {
-//            OutputStream os = Files.newOutputStream(path);
-//            os.write(inputStream.read());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-    //this work by byte[]
-    //       public ResponseEntity<byte[]> findSongBySource(Source source) {
-//        byte[] targetFile = new byte[0];
-//
-//        String sourceFilePath = source.getPath();
-//        String sourceFileName = source.getName();
-//        File file = new File(sourceFilePath + "/" + sourceFileName);
-//
-//        try {
-//            targetFile = FileUtils.readFileToByteArray(file);
-//        } catch (IOException e) {
-//            System.out.println("Exception in <byte[]> findById(Long id) " + e.getMessage());
-//        }
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .contentLength(targetFile.length)
-//                .header("targetFile", "application/octet-stream")
-//                .header("targetFile-disposition", "attachment; filename=\"" + source.getName() + "\"")
-//                .body(targetFile);
-//    }
 }
 
 
