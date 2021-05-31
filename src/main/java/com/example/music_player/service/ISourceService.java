@@ -8,7 +8,8 @@ import java.io.IOException;
 
 public interface ISourceService {
 
-      void save(MultipartFile multipartFile, Song song, Long songIdFromDB);
+      void
+      save(MultipartFile multipartFile, Song song, Long songIdFromDB);
 
       byte[] findByName(String name, StorageTypes storage_type, String  file_type) throws IOException;
 

@@ -33,7 +33,7 @@ public class ListenerService implements IListenerService {
 
     private final String HTTP_REQUEST_GET_SONG = "http://localhost:8080/song/getSong/{song_id}";
     private final String HTTP_REQUEST_GET_FILE_IN_ARRAY = "http://localhost:8080/song/file/{name}?file_type={file_type}&storage_type={storage_type}";
-    private final String HTTP_REQUEST_POST_SAVE_FILE = "http://localhost:8080/song/upload?albumId=%s&songName=%s&songNotes=%s&songYear=%s";
+    private final String HTTP_REQUEST_POST_SAVE_FILE ="http://localhost:8080/song/upload";
     private byte[] arrayFromWavFile;
     private File mp3File;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -77,18 +77,22 @@ public class ListenerService implements IListenerService {
         Long albumId = songDataToSaveInStorage.getAlbum_id();
         Integer songYear = songDataToSaveInStorage.getYear();
         String songNotes = songDataToSaveInStorage.getNotes();
-
         Resource multipartFileResource = multipartFile.getResource();
-        String serverUrl = String.format(HTTP_REQUEST_POST_SAVE_FILE
-                , albumId
-                , multipartFile.getName()
-                , songNotes
-                , songYear);
+//        String serverUrl = String.format(HTTP_REQUEST_POST_SAVE_FILE
+//                , albumId
+//                , multipartFile.getName()
+//                , songNotes
+//                , songYear);
         LinkedMultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("file", multipartFileResource);
+        parts.add("albumId", albumId);
+        parts.add("songName", multipartFile.getName());
+        parts.add("songNotes", songNotes);
+        parts.add("songYear", songYear);
+
         httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<LinkedMultiValueMap<String, Object>> httpEntity = new HttpEntity<>(parts, httpHeaders);
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(serverUrl, httpEntity, String.class);
+        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(HTTP_REQUEST_POST_SAVE_FILE, httpEntity, String.class);
         log.info("IN saveMp3FileToStorages() : request implemented " + responseEntity.getStatusCode());
     }
 
