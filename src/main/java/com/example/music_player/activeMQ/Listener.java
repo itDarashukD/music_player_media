@@ -14,8 +14,6 @@ public class Listener {
 
     @Autowired
     private IListenerService listenerService;
-    @Autowired
-    private ConnectionFactory connectionFactory;
 
     @JmsListener(destination = "music_player_queue?consumer.exclusive=true", containerFactory = "jsaFactory")
     public void receive(Source source) {
