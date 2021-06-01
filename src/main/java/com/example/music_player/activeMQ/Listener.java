@@ -15,7 +15,7 @@ public class Listener {
     @Autowired
     private IListenerService listenerService;
 
-    @JmsListener(destination = "music_player_queue", containerFactory = "jsaFactory")
+     @JmsListener(destination = "music_player_queue", containerFactory = "jsaFactory")
     public void receive(Source source) {
         log.info("IN class Listener receive() : object received : {}", source.getName() + " " + source.getStorage_types());
 

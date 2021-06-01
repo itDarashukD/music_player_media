@@ -1,5 +1,6 @@
 package com.example.music_player.config;
 
+import com.example.music_player.entity.Source;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
@@ -15,6 +16,7 @@ import org.springframework.jms.support.converter.MessageType;
 
 import javax.jms.ConnectionFactory;
 
+
 @Configuration
 @EnableJms
 public class ActiveMqConfig {
@@ -25,6 +27,7 @@ public class ActiveMqConfig {
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
+
         messageConverter.setTargetType(MessageType.TEXT);
         messageConverter.setTypeIdPropertyName("_type");
         return messageConverter;
