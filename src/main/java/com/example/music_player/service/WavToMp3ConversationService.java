@@ -1,10 +1,12 @@
 package com.example.music_player.service;
 
 
-import it.sauronsoftware.jave.AudioAttributes;
+
+
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncoderException;
 import it.sauronsoftware.jave.EncodingAttributes;
+import it.sauronsoftware.jave.audio.AudioAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

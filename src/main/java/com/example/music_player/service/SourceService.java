@@ -47,7 +47,7 @@ public class SourceService implements ISourceService {
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
 
-            if (!sourceRepository.isExistByNameAndFileType(song.getName(),contentType)) {
+            if (!sourceRepository.isExistByNameAndFileType(song.getName(), contentType)) {
                 List<Source> source = storageSourceService.save(inputStream, fileName, contentType);
                 source.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
@@ -60,16 +60,16 @@ public class SourceService implements ISourceService {
                 }
 
             } else {
-               log.info("file " + song.getName() + " in DB is Exist at this moment");
+                log.info("file " + song.getName() + " in DB is Exist at this moment");
             }
         } catch (IOException e) {
-           log.error("Exeption IN: save()" +e.getMessage());
+            log.error("Exeption IN: save()" + e.getMessage());
         }
     }
 
     public void putSourceToQueue(Source sourceToQueue) {
         jmsTemplate.convertAndSend(queue, sourceToQueue);
-        log.info("IN putSourceToQueue: "+sourceToQueue  + " was put in ActiveMQ queue!");
+        log.info("IN putSourceToQueue: " + sourceToQueue + " was put in ActiveMQ queue!");
     }
 
     public byte[] findByName(String name, StorageTypes storage_type, String file_type) throws IOException {

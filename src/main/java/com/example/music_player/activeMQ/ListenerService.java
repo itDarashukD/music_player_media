@@ -78,11 +78,7 @@ public class ListenerService implements IListenerService {
         Integer songYear = songDataToSaveInStorage.getYear();
         String songNotes = songDataToSaveInStorage.getNotes();
         Resource multipartFileResource = multipartFile.getResource();
-//        String serverUrl = String.format(HTTP_REQUEST_POST_SAVE_FILE
-//                , albumId
-//                , multipartFile.getName()
-//                , songNotes
-//                , songYear);
+
         LinkedMultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("file", multipartFileResource);
         parts.add("albumId", albumId);

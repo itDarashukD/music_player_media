@@ -1,8 +1,9 @@
 package com.example.music_player.tetsPlayMusic;
 
-import it.sauronsoftware.jave.AudioAttributes;
+
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncodingAttributes;
+import it.sauronsoftware.jave.audio.AudioAttributes;
 
 import java.io.File;
 
