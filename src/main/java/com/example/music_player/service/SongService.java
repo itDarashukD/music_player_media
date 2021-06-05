@@ -61,30 +61,5 @@ public class SongService implements ISongService {
     public Boolean isExistByName(String name) {
         return songRepository.isExistByName(name);
     }
-//    //save one file
-//    public Source saveSource(MultipartFile multipartFile, Long songId) {
-//        return Optional.ofNullable(storageSourceService.save(multipartFile, songId))
-//                .orElseThrow(()->new IllegalStateException("IN saveSource : source not save"));
-//    }
-
-//    public InputStream findSongBySource(Source source) throws IOException {
-//        return Optional.ofNullable(storageSourceService.findSongBySource(source))
-//                .orElseThrow(() -> new IllegalStateException("song by source " + source.getName() + " not fined"));
-//    }
-
-//    public boolean isExist(Source source) {
-//        return storageSourceService.isExist(source);
-//    }
-//
-//    public void delete(Source source) {
-//        storageSourceService.delete(source);
-//    }
-
-//    public Source saveZip(Resource resource, String name, String contentType){
-//       return storageSourceService.saveZip(resource, name,contentType);
-//    }
-    //    public void saveSource(InputStream inputStream,Path path) {
-//        storageSourceService.save(inputStream,path);
-//    }
 }
 

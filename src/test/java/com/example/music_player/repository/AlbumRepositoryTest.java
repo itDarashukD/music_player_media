@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-public class IAlbumRepositoryTest {
+public class AlbumRepositoryTest {
 
     private static Album album1;
     private static Album album2;
@@ -38,7 +38,7 @@ public class IAlbumRepositoryTest {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public IAlbumRepositoryTest(IAlbumRepository repository, JdbcTemplate jdbcTemplate) {
+    public AlbumRepositoryTest(IAlbumRepository repository, JdbcTemplate jdbcTemplate) {
         this.repository = repository;
         this.jdbcTemplate = jdbcTemplate;
     }

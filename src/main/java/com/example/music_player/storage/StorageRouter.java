@@ -33,6 +33,7 @@ public class StorageRouter implements IStorageSourceService {
         }
     }
 
+    @Override
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
         File fileWithInputStream = putInputStreamToFile(inputStream);
@@ -44,14 +45,17 @@ public class StorageRouter implements IStorageSourceService {
         return sourceList;
     }
 
+    @Override
     public void delete(Source source) {
         storagesMap.get(source.getStorage_types()).delete(source);
     }
 
+    @Override
     public boolean isExist(Source source) {
         return storagesMap.get(source.getStorage_types()).isExist(source);
     }
 
+    @Override
     public InputStream findSongBySource(Source source) throws IOException {
         return storagesMap.get(source.getStorage_types()).findSongBySource(source);
     }

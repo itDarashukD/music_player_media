@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.example.music_player.annotation.StorageType;
+import com.example.music_player.xexperimentDirectory.annotation.StorageType;
 import com.example.music_player.entity.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -12,14 +12,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +36,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     private File tempFile;
     private File fileObject;
 
+    @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);
         s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, fileObject));
@@ -99,16 +98,4 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         }
         return isObjectExist;
     }
-//
-//
-//    @Override
-//    public Source saveZip(Resource resource, String name, String contentType) {
-//        return null;
-//    }
-
-//        File convertedFile = new File(Objects.requireNonNull(inputStream.getOriginalFilename()));
-//        try {
-//            FileOutputStream fos = new FileOutputStream(convertedFile);
-//            fos.write(multipartFile.getBytes());
-//        } catch (IOException e) {
 }
