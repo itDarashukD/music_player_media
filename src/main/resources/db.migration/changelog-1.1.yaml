@@ -1,5 +1,5 @@
 databaseChangeLog:
-  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - logicalFilePath: /db/migration/changelog-1.1.yaml
   - changeSet:
       id: 111
       author: dzmitry-darashuk

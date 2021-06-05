@@ -1,29 +1,28 @@
+databaseChangeLog:
+- logicalFilePath: /db/migration/changelog-1.8.yaml
 - changeSet:
-    id: init-table-Album
+  id: init-table-Album
     author: darashuk-dzmitry
-    changes:
-      - insert:
+      changes:
+     - insert:
           tableName: Album
-      columns:
-        - column:
-            name: id
-            value: 1
-      columns:
-        - column:
-            name: year
-            value: 2005
-      columns:
-        - column:
-            name: name
-            value: 'Spring'
-      columns:
-        - column:
-            name: notes
-            value: 'My really loved framework'
-      rollback:
-        - delete:
-            tableName: Album
-            where: id in (1)
+            columns:
+            - column:
+                    name: id
+                    value: 1
+            - column:
+                        name: year
+                        value: 2005
+            - column:
+                        name: name
+                        value: 'Spring'
+            - column:
+                        name: notes
+                        value: 'My really loved framework'
+            rollback:
+                  - delete:
+                      tableName: Album
+                      where: id in (1)
 
 
 

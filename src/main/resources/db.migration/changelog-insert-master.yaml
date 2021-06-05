@@ -1,0 +1,84 @@
+- changeSet:
+    id: init-table-Album
+    author: darashuk-dzmitry
+    changes:
+      - insert:
+        tableName: Album
+        columns:
+          - column:
+            name: id
+            value: 1
+          - column:
+            name: year
+            value: 2005
+          - column:
+            name: name
+            value: 'Spring'
+          - column:
+            name: notes
+            value: 'My really loved framework'
+      rollback:
+        - delete:
+          tableName: Album
+          where: id in (1)
+    - changeSet:
+        id: init-table-Song
+          author: darashuk-dzmitry
+            changes:
+                - insert:
+                  tableName: Song
+                  columns:
+                    - column:
+                        name: id
+                        value: 1
+                    - column:
+                        name: album_id
+                        value: 1
+                    - column:
+                        name: name
+                        value: "Yesterday"
+                    - column:
+                        name: notes
+                        value: "Yesterday notes"
+                    - column:
+                        name: year
+                        value: 2020
+            rollback:
+              - delete:
+                tableName: Song
+                where: id in (1)
+    - changeSet:
+        id: init-table-Source
+        author: darashuk-dzmitry
+        changes:
+          - insert:
+          tableName: Source
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: storage_id
+                  value: 1
+              - column:
+                  name: path
+                  value: "C:\Users\Dzmitry_Darashuk\Epam_MusicPlayer\musik_files"
+              - column:
+                name: size
+                value: 55555
+              - column:
+                name: checksum
+                value: "b25b589bf15fe218cbdcd91e7fdfc959"
+              - column:
+                name: song_id
+                value: 1
+              - column:
+                name: storage_types
+                value: "FILE_SYSTEM"
+              - column:
+                name: name
+                value: "Yesterday"
+        rollback:
+          - delete:
+              tableName: Source
+              where: id in (1)
