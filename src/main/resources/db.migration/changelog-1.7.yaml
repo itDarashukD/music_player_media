@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - changeSet:
+      id: 777
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: SourceMetadata
+            columns:
+              - column:
+                name: type
+                type: VARCHAR(250)
+                primaryKey: true
+                nullable: false
+              - column:
+                  name: path
+                  type: VARCHAR(250)
+                  constraints:
+                  nullable: false
+
+
+
+

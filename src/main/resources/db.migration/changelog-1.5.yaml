@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - changeSet:
+      id: 555
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: Source
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: storage_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKey: true
+                      foreignKeyName: storage_id
+                        references: Storage(id)
+              - column:
+                  name: song_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: path
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: checksum
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: storage_types
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_type
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false

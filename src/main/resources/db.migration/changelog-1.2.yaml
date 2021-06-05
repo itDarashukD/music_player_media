@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - changeSet:
+      id: 222
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: Genre
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                    nullable: false
+              - column:
+                  name: genreName
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false

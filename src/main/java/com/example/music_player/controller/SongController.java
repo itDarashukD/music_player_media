@@ -1,6 +1,5 @@
 package com.example.music_player.controller;
 
-import com.example.music_player.config.DecoratorServiceConfig;
 import com.example.music_player.entity.Song;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
@@ -23,7 +22,7 @@ public class SongController {
     private ISourceService decorator;
 
     @Autowired
-    public SongController(ISongService songService   ) {
+    public SongController(ISongService songService) {
         this.songService = songService;
     }
 

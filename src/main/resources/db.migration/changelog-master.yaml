@@ -1,0 +1,40 @@
+databaseChangelog:
+  -includeAll:
+    path: /db/migration/changelog-1.1.yaml
+
+
+    -includeAll:
+      path: /db/migration/changelog-1.2.yaml
+
+
+      -includeAll:
+        path: /db/migration/changelog-1.3.yaml
+
+
+        -includeAll:
+          path: /db/migration/changelog-1.4.yaml
+
+
+          -includeAll:
+            path: /db/migration/changelog-1.5.yaml
+
+
+            -includeAll:
+              path: /db/migration/changelog-1.6.yaml
+
+
+              -includeAll:
+                path: /db/migration/changelog-1.7.yaml
+
+
+                -includeAll:
+                  path: /db/migration/changelog-1.8.yaml
+
+
+                  -includeAll:
+                    path: /db/migration/changelog-1.9.yaml
+
+
+                      -includeAll:
+                        path: /db/migration/changelog-1.10.yaml
+

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - changeSet:
+      id: 444
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: Storage
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                    nullable: false
+              - column:
+                  name: storageType
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false

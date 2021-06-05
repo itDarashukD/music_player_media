@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - logicalFilePath: data/changelog/db.changelog.master.yaml
+  - changeSet:
+      id: 111
+      author: dzmitry-darashuk
+      changes:
+        - createTable:
+            tableName: Album
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(250)
+            constraints:
+              nullable: false
+                - column:
+                    name: year
+                    type: BIGINT
+                    constraints:
+                      nullable: false
+                - column:
+                    name: notes
+                    type: VARCHAR(250)
+                    constraints:
+                      nullable: false

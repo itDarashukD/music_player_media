@@ -1,0 +1,33 @@
+- changeSet:
+    id: init-table-Song
+    author: darashuk-dzmitry
+    changes:
+      - insert:
+          tableName: Source
+          columns:
+            - column:
+                name: id
+                value: 1
+            - column:
+                name: storage_id
+                value: 1
+            - column:
+                name: path
+                value: "C:\Users\Dzmitry_Darashuk\Epam_MusicPlayer\musik_files"
+            - column:
+                name: size
+                value: 55555
+            - column:
+                name: checksum
+                value: "b25b589bf15fe218cbdcd91e7fdfc959"
+            - column:
+                name: song_id
+                value: 1
+            - column:
+                name: storage_types
+                value: "FILE_SYSTEM"
+            - column:
+                name: name
+                value: "Yesterday"
+
+

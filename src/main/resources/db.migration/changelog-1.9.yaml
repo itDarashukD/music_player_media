@@ -1,0 +1,26 @@
+- changeSet:
+    id: init-table-Song
+    author: darashuk-dzmitry
+    changes:
+      - insert:
+          tableName: Song
+          columns:
+            - column:
+                name: id
+                value: 1
+            - column:
+                name: album_id
+                value: 1
+            - column:
+                name: name
+                value: "Yesterday"
+            - column:
+                name: notes
+                value: "Yesterday notes"
+            - column:
+                name: year
+               value: 2020
+          rollback:
+            - delete:
+                tableName: Song
+                where: id in (1)
