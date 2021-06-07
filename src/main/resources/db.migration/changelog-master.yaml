@@ -1,7 +1,7 @@
 databaseChangeLog:
   - logicalFilePath: /db/migration/changelog-master.yaml
   - changeSet:
-      id: 111
+      id: 1
       author: dzmitry-darashuk
       changes:
         - createTable:
@@ -31,7 +31,7 @@ databaseChangeLog:
                      constraints:
                         nullable: false
   - changeSet:
-      id: 222
+      id: 2
       author: darashuk-dzmitry
       changes:
         - createTable:
@@ -51,7 +51,7 @@ databaseChangeLog:
                    constraints:
                       nullable: false
   - changeSet:
-      id: 333
+      id: 3
       author: darashuk-dzmitry
       changes:
           - createTable:
@@ -84,7 +84,7 @@ databaseChangeLog:
                        foreignKeyName: artist_genre_fk
                        references: genre(id)
   - changeSet:
-      id: 444
+      id: 4
       author: darashuk-dzmitry
       changes:
         - createTable:
@@ -104,7 +104,7 @@ databaseChangeLog:
                    constraints:
                      nullable: false
   - changeSet:
-      id: 555
+      id: 5
       author: darashuk-dzmitry
       changes:
         - createTable:
@@ -161,7 +161,7 @@ databaseChangeLog:
                    constraints:
                       nullable: false
   - changeSet:
-      id: 666
+      id: 6
       author: darashuk-dzmitry
       changes:
         - createTable:
@@ -199,7 +199,7 @@ databaseChangeLog:
                   constraints:
                      nullable: false
   - changeSet:
-      id: 777
+      id: 7
       author: darashuk-dzmitry
       changes:
         - createTable:
@@ -268,6 +268,24 @@ databaseChangeLog:
                            tableName: song
                            where: id in (1)
   - changeSet:
+      id: init-table-storage
+      author: darashuk-dzmitry
+      changes:
+        - insert:
+            tableName: storage
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: storageType
+                  value: "FILE_SYSTEM"
+            rollback:
+              - delete:
+                  tableName: storage
+                  where: id in (1)
+
+  - changeSet:
               id: init-table-source
               author: darashuk-dzmitry
               changes:
@@ -291,7 +309,7 @@ databaseChangeLog:
                             value: "b25b589bf15fe218cbdcd91e7fdfc959"
                       - column:
                             name: song_id
-                            value: 2
+                            value: 1
                       - column:
                             name: storage_types
                             value: "FILE_SYSTEM"
