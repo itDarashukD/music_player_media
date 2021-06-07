@@ -5,63 +5,66 @@ databaseChangeLog:
       author: dzmitry-darashuk
       changes:
         - createTable:
-          tableName: Album
-          columns:
-            - column:
-                name: id
-                type: BIGINT
-                autoIncrement: true
-                constraints:
-                  primaryKey: true
-                  nullable: false
-            - column:
-                name: name
-                type: VARCHAR(250)
-                constraints:
-                  nullable: false
-            - column:
-                  name: year
-                  type: BIGINT
-                  constraints:
-                  nullable: false
-            - column:
-                  name: notes
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
+             tableName: album
+             columns:
+                - column:
+                     name: id
+                     type: BIGINT
+                     autoIncrement: true
+                     constraints:
+                        primaryKey: true
+                        primeryKeyName: album_pk
+                        nullable: false
+                - column:
+                     name: name
+                     type: VARCHAR(250)
+                     constraints:
+                        nullable: false
+                - column:
+                     name: year
+                     type: BIGINT
+                     constraints:
+                        nullable: false
+                - column:
+                     name: notes
+                     type: VARCHAR(250)
+                     constraints:
+                        nullable: false
   - changeSet:
       id: 222
       author: darashuk-dzmitry
       changes:
         - createTable:
-            tableName: Genre
-            columns:
-              - column:
-                name: id
-                type: BIGINT
-                autoIncrement: true
-                constraints:
-                primaryKey: true
-                nullable: false
-              - column:
-                name: genreName
-                type: VARCHAR(250)
-                constraints:
-                nullable: false
+             tableName: genre
+             columns:
+               - column:
+                   name: id
+                   type: BIGINT
+                   autoIncrement: true
+                   constraints:
+                      primaryKey: true
+                      primeryKeyName: genre_pk
+                      nullable: false
+               - column:
+                   name: genreName
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
   - changeSet:
       id: 333
       author: darashuk-dzmitry
       changes:
           - createTable:
-              tableName: Artist
+              tableName: artist
               columns:
                 - column:
                     name: id
                     type: BIGINT
                     autoIncrement: true
                     constraints:
-                      primaryKey: true
-                      nullable: false
+                       primaryKey: true
+                       primeryKeyName: artist_pk
+                       nullable: false
                 - column:
                     name: artistName
                     type: VARCHAR(250)
@@ -71,180 +74,185 @@ databaseChangeLog:
                     name: artistNotes
                     type: VARCHAR(250)
                     constraints:
-                      nullable: false
+                       nullable: false
                 - column:
                     name: genreId
                     type: BIGINT
                     constraints:
-                    nullable: false
-                    foreignKey: true
-                    foreignKeyName: genreId
-                    references: Genre(id)
+                       nullable: false
+                       foreignKey: true
+                       foreignKeyName: artist_genre_fk
+                       references: genre(id)
   - changeSet:
       id: 444
       author: darashuk-dzmitry
       changes:
         - createTable:
-            tableName: Storage
-            columns:
-              - column:
-                name: id
-                type: BIGINT
-                autoIncrement: true
-                constraints:
-                primaryKey: true
-                nullable: false
-              - column:
-                name: storageType
-                type: VARCHAR(250)
-                constraints:
-                nullable: false
-
-  - changeSet:
-      id: 555
-      author: darashuk-dzmitry
-      changes:
-        - createTable:
-            tableName: Source
-            columns:
-              - column:
-                name: id
-                type: BIGINT
-                autoIncrement: true
-                constraints:
-                primaryKey: true
-              - column:
-                  name: storage_id
-                  type: BIGINT
-                  constraints:
-                  nullable: false
-                  foreignKey: true
-                  foreignKeyName: storage_id
-                  references: Storage(id)
-              - column:
-                  name: song_id
-                  type: BIGINT
-                  constraints:
-                  nullable: false
-              - column:
-                  name: name
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
-              - column:
-                  name: path
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
-              - column:
-                  name: size
-                  type: BIGINT
-                  constraints:
-                  nullable: false
-              - column:
-                  name: checksum
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
-              - column:
-                  name: storage_types
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
-              - column:
-                  name: file_type
-                  type: VARCHAR(250)
-                  constraints:
-                  nullable: false
-  - changeSet:
-      id: 666
-      author: darashuk-dzmitry
-      changes:
-        - createTable:
-            tableName: Song
+            tableName: storage
             columns:
               - column:
                   name: id
                   type: BIGINT
                   autoIncrement: true
                   constraints:
-                    primaryKey: true
-                    nullable: false
+                     primaryKey: true
+                     primeryKeyName: storage_pk
+                     nullable: false
               - column:
-                  name: album_id
+                   name: storageType
+                   type: VARCHAR(250)
+                   constraints:
+                     nullable: false
+  - changeSet:
+      id: 555
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: source
+            columns:
+              - column:
+                   name: id
+                   type: BIGINT
+                   autoIncrement: true
+                   constraints:
+                      primaryKey: true
+                      primeryKeyName: source_pk
+              - column:
+                   name: storage_id
+                   type: BIGINT
+                   constraints:
+                      nullable: false
+                      foreignKey: true
+                      foreignKeyName: source_storage_fk
+                      references: storage(id)
+              - column:
+                   name: song_id
+                   type: BIGINT
+                   constraints:
+                      nullable: false
+              - column:
+                   name: name
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: path
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: size
+                   type: BIGINT
+                   constraints:
+                      nullable: false
+              - column:
+                   name: checksum
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: storage_types
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
+              - column:
+                   name: file_type
+                   type: VARCHAR(250)
+                   constraints:
+                      nullable: false
+  - changeSet:
+      id: 666
+      author: darashuk-dzmitry
+      changes:
+        - createTable:
+            tableName: song
+            columns:
+              - column:
+                  name: id
                   type: BIGINT
+                  autoIncrement: true
                   constraints:
-                    nullable: false
-                    foreignKey: true
-                    foreignKeyName: album_id
-                    references: Album(id)
+                     primaryKey: true
+                     primeryKeyName: song_pk
+                     nullable: false
+              - column:
+                   name: album_id
+                   type: BIGINT
+                   constraints:
+                      nullable: false
+                      foreignKey: true
+                      foreignKeyName: song_album_fk
+                      references: album(id)
               - column:
                   name: name
                   type: VARCHAR(250)
                   constraints:
-                  nullable: false
+                     nullable: false
               - column:
                   name: notes
                   type: VARCHAR(250)
                   constraints:
-                  nullable: false
+                     nullable: false
               - column:
                   name: year
                   type: BIGINT
                   constraints:
-                  nullable: false
+                     nullable: false
   - changeSet:
       id: 777
       author: darashuk-dzmitry
       changes:
         - createTable:
-            tableName: SourceMetadata
+            tableName: sourceMetadata
             columns:
               - column:
-                name: type
-                type: VARCHAR(250)
-                primaryKey: true
-                nullable: false
+                   name: type
+                   type: VARCHAR(250)
+                   constraints:
+                      primaryKey: true
+                      primeryKeyName: sourceMetadata_pk
+                      nullable: false
               - column:
                   name: path
                   type: VARCHAR(250)
                   constraints:
-                  nullable: false
+                      nullable: false
   - changeSet:
-      id: init-table-Album
+      id: init-table-album
       author: darashuk-dzmitry
       changes:
         - insert:
-          tableName: Album
-          columns:
-            - column:
-              name: id
-              value: 1
-            - column:
-              name: year
-              value: 2005
-            - column:
-              name: name
-              value: 'Spring'
-            - column:
-              name: notes
-              value: 'My really loved framework'
+             tableName: album
+             columns:
+                - column:
+                     name: id
+                     value: 1
+                - column:
+                     name: year
+                     value: 2005
+                - column:
+                     name: name
+                     value: 'Spring'
+                - column:
+                     name: notes
+                     value: 'My really loved framework'
           rollback:
             - delete:
-              tableName: Album
-              where: id in (1)
+                 tableName: album
+                 where: id in (1)
+
   - changeSet:
-              id: init-table-Song
+              id: init-table-song
               author: darashuk-dzmitry
               changes:
                  - insert:
-                   tableName: Song
-                   columns:
+                      tableName: song
+                      columns:
                           - column:
                               name: id
                               value: 1
                           - column:
-                              name: album_id
+                              name:  album_id
                               value: 1
                           - column:
                               name: name
@@ -257,18 +265,18 @@ databaseChangeLog:
                               value: 2020
                    rollback:
                       - delete:
-                        tableName: Song
-                        where: id in (1)
+                           tableName: song
+                           where: id in (1)
   - changeSet:
-              id: init-table-Source
+              id: init-table-source
               author: darashuk-dzmitry
               changes:
                 - insert:
-                  tableName: Source
-                  columns:
+                    tableName: source
+                    columns:
                       - column:
-                        name: id
-                        value: 1
+                           name: id
+                           value: 1
                       - column:
                             name: storage_id
                             value: 1
@@ -283,15 +291,18 @@ databaseChangeLog:
                             value: "b25b589bf15fe218cbdcd91e7fdfc959"
                       - column:
                             name: song_id
-                            value: 1
+                            value: 2
                       - column:
                             name: storage_types
                             value: "FILE_SYSTEM"
                       - column:
                             name: name
                             value: "Yesterday"
+                      - column:
+                          name: file_type
+                          value: "wav/mp3"
                   rollback:
                      - delete:
-                       tableName: Source
-                       where: id in (1)
+                          tableName: source
+                          where: id in (1)
 
