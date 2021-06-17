@@ -59,7 +59,6 @@ public class ActiveMqConfig {
         connectionFactory.setPassword("admin");
         connectionFactory.setTrustAllPackages(true);
 
-
         return connectionFactory;
     }
 
@@ -70,44 +69,4 @@ public class ActiveMqConfig {
         template.setConnectionFactory(connectionFactory());
         return template;
     }
-
-    // config for Two listeners
-//    @Bean
-//    public ActiveMQConnectionFactory connectionFactory() {
-//        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-//        connectionFactory.setBrokerURL(brokerUrl);
-//        connectionFactory.setPassword("admin");
-//        connectionFactory.setUserName("admin");
-//        connectionFactory.setUseCompression(true);
-//
-//        connectionFactory.setConnectionIDPrefix("DRR");
-//        connectionFactory.setUseAsyncSend(true);
-//        return connectionFactory;
-//    }
-//
-//    @Bean(name= "foo1")
-//    public DefaultJmsListenerContainerFactory foo1() {
-//        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-//        factory.setConnectionFactory(connectionFactory());
-//        factory.setConcurrency("1-1");
-//        factory.setPubSubDomain(true);
-//        factory.setSubscriptionDurable(true);
-//
-//         connectionFactory().setClientID("FOO_1");
-//        return factory;
-//    }
-//
-//    @Bean(name= "foo2")
-//    public DefaultJmsListenerContainerFactory foo2() {
-//        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-//        factory.setConnectionFactory(connectionFactory());
-//        factory.setConcurrency("1-1");
-//        factory.setPubSubDomain(true);
-//        factory.setSubscriptionDurable(true);
-//
-//         connectionFactory().setClientID("FOO_1");
-//        return factory;
-//    }
-
-
 }

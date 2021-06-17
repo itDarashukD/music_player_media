@@ -161,6 +161,7 @@
 			<artifactId>jackson-core</artifactId>
 			<version>2.12.3</version>
 		</dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -173,30 +174,11 @@
 			<version>1.0.8</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-<!--		<dependency>-->
-<!--			<groupId>org.yaml</groupId>-->
-<!--			<artifactId>snakeyaml</artifactId>-->
-<!--			<version>1.12</version>-->
-<!--		</dependency>-->
-		<!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
-
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 			<version>4.3.5</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-<!--		<dependency>-->
-<!--			<groupId>org.yaml</groupId>-->
-<!--			<artifactId>snakeyaml</artifactId>-->
-<!--			<version>1.28</version>-->
-<!--		</dependency>-->
-
-
-
-
 
 	</dependencies>
 
@@ -216,5 +198,13 @@
 			</plugin>
 		</plugins>
 	</build>
+
+<!--	<distributionManagement>-->
+<!--		<repository>-->
+<!--			<id>internal.repo</id>-->
+<!--			<name>Internal repo</name>-->
+<!--			<url>file:C:\Users\Dzmitry_Darashuk\music_player\music_player\</url>-->
+<!--		</repository>-->
+<!--	</distributionManagement>-->
 
 </project>
