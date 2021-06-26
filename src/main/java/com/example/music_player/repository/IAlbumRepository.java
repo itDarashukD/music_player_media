@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface IAlbumRepository {
-    @Insert("Insert into album(year,notes,name) values (#{year},#{notes},#{name})")
+    @Insert("Insert into Album(year,notes,name) values (#{year},#{notes},#{name})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id") //give me id of this inserting
     void save(Album album);
 
@@ -18,12 +18,12 @@ public interface IAlbumRepository {
     void deleteById(@Param("id") Long id);
 
     @Result(column = "year", property = "year")
-    @Select("SELECT * FROM album WHERE id = #{id}")
+    @Select("SELECT * FROM Album WHERE id = #{id}")
     Album findById(@Param("id") Long id);
 
-    @Select("SELECT * FROM album")
+    @Select("SELECT * FROM Album")
     List<Album> findAll();
 
-    @Select("SELECT * FROM album WHERE notes = #{notes}")
+    @Select("SELECT * FROM Album WHERE notes = #{notes}")
     Album findByNotes(@Param("notes") String notes);
 }

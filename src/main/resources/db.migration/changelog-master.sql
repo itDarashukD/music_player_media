@@ -80,8 +80,9 @@ CREATE TABLE IF NOT EXISTS SourceMetadata
 );
 
 -- changeset Liquibase:2
-# insert into Album (id, name ,year ,notes) VALUES (1, 'Spring', 2005, 'Baeldung');
-# insert into Song (id, album_id , name ,notes ,year) values (1, 1 , 'firstSong','firstSongNotes',2020);
-# insert into Storage (id, storageType) VALUES (1, 'FILE_SYSTEM');
-# insert into Source (id, storage_id , song_id ,name ,path,size, checksum, storage_types ,file_type)
-# values (1, 1 ,1,'firstSongSource','firstSongSourcePath',11111,'b25b589bf15fe218cbdcd91e7fdfc959','FILE_SYSTEM','audio/wave');
+INSERT into  Album (id, name ,year ,notes) VALUES (1, 'Spring', 2005, 'Baeldung');
+INSERT IGNORE  Song (id, album_id , name ,notes ,year) values (1, 1 , 'firstSong','firstSongNotes',2020);
+INSERT IGNORE  Storage (id, storageType) VALUES (1, 'FILE_SYSTEM');
+INSERT IGNORE  Storage (id, storageType) VALUES (2, 'CLOUD_STORAGE');
+INSERT IGNORE  Source (id, storage_id , song_id ,name ,path,size, checksum, storage_types ,file_type)
+values (1, 1 ,1,'firstSongSource','firstSongSourcePath',11111,'b25b589bf15fe218cbdcd91e7fdfc959','FILE_SYSTEM','audio/wave');
