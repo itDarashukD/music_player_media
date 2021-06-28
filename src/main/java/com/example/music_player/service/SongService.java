@@ -34,7 +34,7 @@ public class SongService implements ISongService {
         if (!songRepository.isExistByName(song.getName())) {
             songRepository.save(song);
         } else {
-            System.out.println("file " + song.getName() + " in DB is Exist at this moment");
+            throw new IllegalStateException("file " + song.getName() + " exist in DB in this moment, please upload another file!");
         }
         return song.getId();
     }

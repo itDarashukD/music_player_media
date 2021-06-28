@@ -82,7 +82,7 @@ public class StorageRouter implements IStorageSourceService {
     }
 }
 
-//if we want to choose storage in who will be save file
+//if we want to choose storage in which will be save file
 //        if (storageType.equals(StorageTypes.FILE_SYSTEM)) {
 //            return storagesMap.get(storageType).save(inputStream, filename, contentType);
 //        } else if (storageType.equals(StorageTypes.CLOUD_STORAGE)) {

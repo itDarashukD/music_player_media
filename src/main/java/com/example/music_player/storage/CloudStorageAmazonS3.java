@@ -4,10 +4,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.example.music_player.xexperimentDirectory.annotation.StorageType;
 import com.example.music_player.entity.Source;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
+import com.example.music_player.xexperimentDirectory.annotation.StorageType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -41,18 +39,13 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);
-      ////////////////////////////////////////////////////////////////////
-        boolean found =
-                s3Client.doesBucketExist(bucketName);
+        boolean found = s3Client.doesBucketExist(bucketName);
 
         if (!found) {
             s3Client.createBucket(bucketName);
         } else {
-            System.out.println("Bucket "+bucketName+"  already exists.");
+            System.out.println("Bucket " + bucketName + "  already exists.");
         }
-
-
-
 
         s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, fileObject));
         return createSource(originalFilename, contentType);
@@ -77,7 +70,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
         } catch (IOException e) {
-           log.info("IN putInputStreamToFile() :" + e.getMessage());
+            log.info("IN putInputStreamToFile() :" + e.getMessage());
         }
         return tempFile;
     }
