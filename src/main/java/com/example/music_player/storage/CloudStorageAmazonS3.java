@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.example.music_player.annotation.StorageType;
 import com.example.music_player.entity.Source;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Service
 @StorageType(StorageTypes.CLOUD_STORAGE)
+@Slf4j
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
     @Value("${cloud.AmazonS3.credentials.path-cloud-storage}")
@@ -61,7 +63,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
         } catch (IOException e) {
-            System.out.println("Exeption IN : convertMultipartFileToFile()" + e.getMessage());
+           log.info("IN putInputStreamToFile() :" + e.getMessage());
         }
         return tempFile;
     }
@@ -76,7 +78,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
             return new ByteArrayResource(content).getInputStream();
 
         } catch (IOException e) {
-            System.out.println("Exeption IN : downloadFile()" + e.getMessage());
+            log.info("IN findSongBySource() :" + e.getMessage());
         }
         return InputStream.nullInputStream();
     }
@@ -84,7 +86,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Override
     public void delete(Source source) {
         s3Client.deleteObject(bucketName, source.getName());
-        System.out.println("file : " + source.getName() + " is successfully deleted from bucket " + bucketName);
+        log.info("file : " + source.getName() + " is successfully deleted from bucket " + bucketName);
     }
 
     @Override

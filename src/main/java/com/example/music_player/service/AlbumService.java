@@ -2,6 +2,7 @@ package com.example.music_player.service;
 
 import com.example.music_player.entity.Album;
 import com.example.music_player.repository.IAlbumRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class AlbumService implements IAlbumService{
 
     private final IAlbumRepository IAlbumRepository;

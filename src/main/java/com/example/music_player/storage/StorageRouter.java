@@ -2,6 +2,7 @@ package com.example.music_player.storage;
 
 
 import com.example.music_player.entity.Source;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -11,6 +12,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+@Slf4j
 @Component
 @Primary
 public class StorageRouter implements IStorageSourceService {
@@ -33,7 +35,6 @@ public class StorageRouter implements IStorageSourceService {
 
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
-        Source returnSource = null;
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
         for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
@@ -61,7 +62,7 @@ public class StorageRouter implements IStorageSourceService {
             tempFile = File.createTempFile("Epam_MusicPlayer-Inputstream", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
         } catch (IOException e) {
-            System.out.println("Exception IN : putInputStreamToFile()" + e.getMessage());
+            log.error("Exception IN : putInputStreamToFile()" + e.getMessage());
         }
         return tempFile;
     }
