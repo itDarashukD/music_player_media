@@ -76,6 +76,11 @@ public class FileSystemSourceStorage implements IStorageSourceService {
             log.error("IN FileSystemSourceStorage delete() :" + e.getMessage());
         }
     }
+
+    @Override
+    public String getTypeStorage() {
+        return "FILE_SYSTEM";
+    }
 }
 
 

@@ -20,8 +20,6 @@ public interface IStorageSourceService {
     //-	get data by key
    InputStream findSongBySource(Source source) throws IOException;
 
-
-
- //   Source saveZip(Resource resource,String name,String contentType)  ;
-
+   //to get Storage type
+   String getTypeStorage();
 }

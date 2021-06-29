@@ -9,7 +9,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 @Slf4j
@@ -17,31 +20,49 @@ import java.util.Map.Entry;
 @Primary
 public class StorageRouter implements IStorageSourceService {
 
-    private final Collection<IStorageSourceService> storagesList;
-    private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
+    //    private final Collection<IStorageSourceService> storagesList;
+//    private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
+    private final Map<String, IStorageSourceService> storagesMap = new HashMap<>();
+    private final List<IStorageSourceService> storageSourceList;
 
     @Autowired
-    public StorageRouter(Collection<IStorageSourceService> storagesList) {
-        this.storagesList = storagesList;
-        for (IStorageSourceService storage : storagesList
+    public StorageRouter(List<IStorageSourceService> storageSourceList) {
+        this.storageSourceList = storageSourceList;
+
+        for (IStorageSourceService storage : storageSourceList
         ) {
-            if (storage instanceof FileSystemSourceStorage) {//TODO read about the proxy/sedjeylib
-                storagesMap.put(StorageTypes.FILE_SYSTEM, storage);
-            } else if (storage instanceof CloudStorageAmazonS3) {
-                storagesMap.put(StorageTypes.CLOUD_STORAGE, storage);
-            }
+            storagesMap.put(storage.getTypeStorage(), storage);
         }
     }
+
+    //    @Autowired
+//    public StorageRouter(Collection<IStorageSourceService> storagesList) {
+//
+//        this.storagesList = storagesList;
+//        for (IStorageSourceService storage : storagesList
+//        ) {
+//            if (storage instanceof FileSystemSourceStorage) {//TODO read about the proxy/sedjeylib
+//                storagesMap.put(StorageTypes.FILE_SYSTEM, storage);
+//            } else if (storage instanceof CloudStorageAmazonS3) {
+//                storagesMap.put(StorageTypes.CLOUD_STORAGE, storage);
+//            }
+//        }
+//    }
 
     @Override
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
-        for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
+        for (Entry<String, IStorageSourceService> pair : storagesMap.entrySet()) {
             Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
+
+//        for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
+//            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
+//            sourceList.add(source);
+//        }
         return sourceList;
     }
 
@@ -79,6 +100,11 @@ public class StorageRouter implements IStorageSourceService {
             System.out.println(e.getMessage());
         }
         return InputStreamFromFile;
+    }
+
+    @Override
+    public String getTypeStorage() {
+        return "StorageRouter";
     }
 }
 

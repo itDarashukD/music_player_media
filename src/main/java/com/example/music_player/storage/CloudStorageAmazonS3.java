@@ -106,4 +106,9 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         }
         return isObjectExist;
     }
+
+    @Override
+    public String getTypeStorage() {
+        return "CLOUD_STORAGE";
+    }
 }
