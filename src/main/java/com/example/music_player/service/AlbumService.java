@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class AlbumService implements IAlbumService{
+public class  AlbumService implements IAlbumService{
 
     private final IAlbumRepository IAlbumRepository;
 

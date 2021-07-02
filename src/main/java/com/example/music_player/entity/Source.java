@@ -44,9 +44,9 @@ public class Source implements Serializable {
         this.fileType = fileType;
     }
 
-    public Source(String name, StorageTypes storage_types, String fileType) {
-        this.name = name;
-        this.storage_types = storage_types;
-        this.fileType = fileType;
-    }
+//    public Source(String name, StorageTypes storage_types, String fileType) {
+//        this.name = name;
+//        this.storage_types = storage_types;
+//        this.fileType = fileType;
+//    }
 }

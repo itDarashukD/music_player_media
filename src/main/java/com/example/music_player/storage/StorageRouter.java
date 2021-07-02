@@ -9,10 +9,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 @Slf4j
@@ -20,7 +17,7 @@ import java.util.Map.Entry;
 @Primary
 public class StorageRouter implements IStorageSourceService {
 
-    //    private final Collection<IStorageSourceService> storagesList;
+//        private final Collection<IStorageSourceService> storagesList;
 //    private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
     private final Map<String, IStorageSourceService> storagesMap = new HashMap<>();
     private final List<IStorageSourceService> storageSourceList;
@@ -35,7 +32,7 @@ public class StorageRouter implements IStorageSourceService {
         }
     }
 
-    //    @Autowired
+//        @Autowired
 //    public StorageRouter(Collection<IStorageSourceService> storagesList) {
 //
 //        this.storagesList = storagesList;
@@ -54,7 +51,7 @@ public class StorageRouter implements IStorageSourceService {
         List<Source> sourceList = new ArrayList<>();
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
-        for (Entry<String, IStorageSourceService> pair : storagesMap.entrySet()) {
+        for (Entry<String  , IStorageSourceService> pair : storagesMap.entrySet()) {
             Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
