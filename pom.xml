@@ -144,7 +144,7 @@
             <version>2.9.2</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
+
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
@@ -180,18 +180,11 @@
             <version>4.3.5</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.comp.developer</groupId>-->
-<!--            <artifactId>createNewStorage</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
-                <dependency>
-                    <groupId>com.example.music_player</groupId>
-                    <artifactId>userStorage</artifactId>
-                    <version>0.0.1-SNAPSHOT</version>
-                </dependency>
-
-
+        <dependency>
+            <groupId>com.comp.developer</groupId>
+            <artifactId>createNewStorage</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -210,13 +203,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <!--	<distributionManagement>-->
-    <!--		<repository>-->
-    <!--			<id>internal.repo</id>-->
-    <!--			<name>Internal repo</name>-->
-    <!--			<url>file:C:\Users\Dzmitry_Darashuk\music_player\music_player\</url>-->
-    <!--		</repository>-->
-    <!--	</distributionManagement>-->
-
 </project>

@@ -48,7 +48,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
                 , DigestUtils.md5Hex(originalFilename)
                 , contentType);
 
-        source.setStorage_types(StorageTypes.FILE_SYSTEM);
+        source.setStorage_types( "FILE_SYSTEM");
         source.setStorage_id(1L);
         return Collections.singletonList(source);
     }

@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class AlbumService implements IAlbumService{
+public class AlbumService implements IAlbumService {
 
     private final IAlbumRepository IAlbumRepository;
 
@@ -23,12 +23,12 @@ public class AlbumService implements IAlbumService{
 
     public List<Album> finedAllAlbums() {
         return Optional.ofNullable(IAlbumRepository.findAll())
-        .orElseThrow(() -> new IllegalStateException("Albums not find"));
+                .orElseThrow(() -> new IllegalStateException("Albums not find"));
     }
 
     public Long addAlbum(Album album) {
-       Album album1 = IAlbumRepository.findByNotes(album.getNotes());
-        if (album1!=null) {
+        Album album1 = IAlbumRepository.findByNotes(album.getNotes());
+        if (album1 != null) {
             throw new IllegalStateException("this Album is present");
         }
         IAlbumRepository.save(album);
@@ -37,7 +37,7 @@ public class AlbumService implements IAlbumService{
 
     public Album findById(Long id) {
         return Optional.ofNullable(IAlbumRepository.findById(id)).
-               orElseThrow(() -> new IllegalStateException("Album with id =" + id + " not find"));
+                orElseThrow(() -> new IllegalStateException("Album with id =" + id + " not find"));
     }
 
     public String deleteById(Long id) {

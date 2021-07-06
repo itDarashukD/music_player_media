@@ -1,6 +1,5 @@
 package com.example.music_player.entity;
 
-import com.example.music_player.storage.StorageTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,8 +24,8 @@ public class Song {
     private String notes;
     @NotNull
     private Integer year;
-
-    private StorageTypes storageTypes;
+    @NotNull
+    private String storageTypes;
 
     public Song(Long album_id,String name, String notes, Integer year) {
             this.album_id = album_id;
@@ -35,7 +34,7 @@ public class Song {
         this.year = year;
     }
 
-    public Song(String name, String notes, Integer year, StorageTypes storageTypes) {
+    public Song(String name, String notes, Integer year, String storageTypes) {
         this.name = name;
         this.notes = notes;
         this.year = year;

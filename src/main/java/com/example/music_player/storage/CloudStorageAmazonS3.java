@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.example.music_player.entity.Source;
-import com.example.music_player.xexperimentDirectory.annotation.StorageType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -22,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-@StorageType(StorageTypes.CLOUD_STORAGE)
 @Slf4j
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -39,7 +37,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         fileObject = putInputStreamToFile(inputStream);
-        boolean found = s3Client.doesBucketExist(bucketName);
+        boolean found = s3Client.doesBucketExistV2(bucketName);
 
         if (!found) {
             s3Client.createBucket(bucketName);
@@ -58,7 +56,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
                 , DigestUtils.md5Hex(originalFilename)//TODO to not read input stream twice
                 , contentType);
 
-        source.setStorage_types(StorageTypes.CLOUD_STORAGE);
+        source.setStorage_types("CLOUD_STORAGE");
         source.setStorage_id(2L);
         fileObject.delete();
         tempFile.deleteOnExit();

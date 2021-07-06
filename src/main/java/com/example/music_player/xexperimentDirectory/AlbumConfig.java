@@ -1,4 +1,4 @@
-package com.example.music_player.config;
+package com.example.music_player.xexperimentDirectory;
 
 import com.example.music_player.entity.Album;
 import com.example.music_player.repository.IAlbumRepository;

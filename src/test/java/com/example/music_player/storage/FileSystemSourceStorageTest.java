@@ -41,7 +41,7 @@ class FileSystemSourceStorageTest {
                 , PATH_TEST_FILES
                 , 31000L
                 , "checksum"
-                , StorageTypes.FILE_SYSTEM
+                ,  "FILE_SYSTEM"
                 , "audio/mpeg");
         sourceFilename = source.getName();
         sourceFilePath = source.getPath();

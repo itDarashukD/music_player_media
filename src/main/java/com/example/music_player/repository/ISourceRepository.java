@@ -1,7 +1,6 @@
 package com.example.music_player.repository;
 
 import com.example.music_player.entity.Source;
-import com.example.music_player.storage.StorageTypes;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -26,9 +25,8 @@ public interface ISourceRepository {
     @Result(column = "file_type", property = "fileType")
     @Select("SELECT * FROM Source WHERE name = #{name} and storage_types = #{storage_types} and file_type = #{file_type}")
     Source findByNameAndStorageType(@Param("name") String name,
-                                    @Param("storage_types") StorageTypes storage_types,
+                                    @Param("storage_types") String storage_types,
                                     @Param("file_type") String file_type);
-
 
     @Delete("Delete from Source where id=#{id}")
     void deleteById(@Param("id") Long id);

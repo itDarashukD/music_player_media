@@ -3,7 +3,6 @@ package com.example.music_player.controller;
 import com.example.music_player.entity.Song;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
-import com.example.music_player.storage.StorageTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,7 +73,7 @@ public class SongController {
 
     @GetMapping("/file/{name}")
     public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
-            , @RequestParam("storage_type") StorageTypes storage_type
+            , @RequestParam("storage_type") String storage_type
             , @RequestParam("file_type") String file_type) throws IOException {
         byte[] content = decorator.findByName(name, storage_type, file_type);//Did addition file_type
         return ResponseEntity

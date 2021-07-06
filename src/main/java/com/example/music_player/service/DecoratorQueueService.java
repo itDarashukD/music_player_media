@@ -2,7 +2,6 @@ package com.example.music_player.service;
 
 import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
-import com.example.music_player.storage.StorageTypes;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,7 @@ public class DecoratorQueueService implements ISourceService {
     }
 
     @Override
-    public byte[] findByName(String name, StorageTypes storage_type, String file_type) throws IOException {
+    public byte[] findByName(String name, String storage_type, String file_type) throws IOException {
         return sourceService.findByName(name, storage_type, file_type);
     }
 

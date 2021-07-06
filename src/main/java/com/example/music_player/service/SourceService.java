@@ -4,7 +4,6 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
-import com.example.music_player.storage.StorageTypes;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class SourceService implements ISourceService {
         return sourceList.stream().findAny().orElseThrow(() -> new IllegalStateException("source do not fined"));
     }
 
-    public byte[] findByName(String name, StorageTypes storage_type, String file_type) throws IOException {
+    public byte[] findByName(String name, String storage_type, String file_type) throws IOException {
         Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
