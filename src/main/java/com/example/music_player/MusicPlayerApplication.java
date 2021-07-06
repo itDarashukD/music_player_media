@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-@SpringBootApplication(scanBasePackages ={ "com.example.music_player"})
+//@SpringBootApplication(scanBasePackages ={ "com.example.music_player"})
+@SpringBootApplication
 @EnableSwagger2
 public class MusicPlayerApplication {
 

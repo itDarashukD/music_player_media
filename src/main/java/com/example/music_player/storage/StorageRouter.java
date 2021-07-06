@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 @Component
 @Primary
 public class StorageRouter implements IStorageSourceService {
-
     //    private final Collection<IStorageSourceService> storagesList;
 //    private final Map<StorageTypes, IStorageSourceService> storagesMap = new HashMap<>();
     private final Map<String, IStorageSourceService> storagesMap = new HashMap<>();
@@ -29,12 +28,9 @@ public class StorageRouter implements IStorageSourceService {
     public StorageRouter(List<IStorageSourceService> storageSourceList) {
         this.storageSourceList = storageSourceList;
 
-        for (IStorageSourceService storage : storageSourceList
-        ) {
-            storagesMap.put(storage.getTypeStorage(), storage);
-        }
+        for (IStorageSourceService storage : storageSourceList)
+        {storagesMap.put(storage.getTypeStorage(), storage); }
     }
-
     //    @Autowired
 //    public StorageRouter(Collection<IStorageSourceService> storagesList) {
 //
@@ -48,7 +44,6 @@ public class StorageRouter implements IStorageSourceService {
 //            }
 //        }
 //    }
-
     @Override
     public List<Source> save(InputStream inputStream, String filename, String contentType) {
         List<Source> sourceList = new ArrayList<>();
@@ -58,7 +53,6 @@ public class StorageRouter implements IStorageSourceService {
             Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
-
 //        for (Entry<StorageTypes, IStorageSourceService> pair : storagesMap.entrySet()) {
 //            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
 //            sourceList.add(source);
@@ -68,17 +62,17 @@ public class StorageRouter implements IStorageSourceService {
 
     @Override
     public void delete(Source source) {
-        storagesMap.get(source.getStorage_types()).delete(source);
+        storagesMap.get(String.valueOf(source.getStorage_types())).delete(source);
     }
 
     @Override
     public boolean isExist(Source source) {
-        return storagesMap.get(source.getStorage_types()).isExist(source);
+        return storagesMap.get(String.valueOf(source.getStorage_types())).isExist(source);
     }
 
     @Override
     public InputStream findSongBySource(Source source) throws IOException {
-        return storagesMap.get(source.getStorage_types()).findSongBySource(source);
+        return storagesMap.get(String.valueOf(source.getStorage_types())).findSongBySource(source);
     }
 
     private File putInputStreamToFile(InputStream inputStream) {
@@ -103,8 +97,8 @@ public class StorageRouter implements IStorageSourceService {
     }
 
     @Override
-    public String getTypeStorage() {
-        return "StorageRouter";
+    public String  getTypeStorage() {
+        return  "FTP";
     }
 }
 
