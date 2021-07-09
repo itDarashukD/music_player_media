@@ -5,6 +5,6 @@ import org.apache.ibatis.annotations.Insert;
 
 public interface SourceMetadataRepository {
 
-    @Insert("Insert into song(name,notes, year) values (#{name},#{notes},#{year})")
+    @Insert("Insert into Song(name,notes, year) values (#{name},#{notes},#{year})")
     void save(SourceMetadata sourceMetadata);
 }

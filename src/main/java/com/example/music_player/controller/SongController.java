@@ -3,7 +3,6 @@ package com.example.music_player.controller;
 import com.example.music_player.entity.Song;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
-import com.example.music_player.storage.StorageTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +16,13 @@ import java.util.List;
 public class SongController {
 
     private final ISongService songService;
-    private final ISourceService sourceService;
 
     @Autowired
-    public SongController(ISongService songService, ISourceService sourceService) {
+    private ISourceService decorator;
+
+    @Autowired
+    public SongController(ISongService songService) {
         this.songService = songService;
-        this.sourceService = sourceService;
     }
 
     @GetMapping(value = "/")
@@ -52,7 +52,7 @@ public class SongController {
     }
 
     @DeleteMapping(value = "/deleteSongByName/{songName}")
-    public void deleteByName( @PathVariable String songName) {
+    public void deleteByName(@PathVariable String songName) {
         songService.deleteSongByName(songName);
     }
 
@@ -62,18 +62,20 @@ public class SongController {
             @RequestParam("songName") String songName,
             @RequestParam("songYear") Integer songYear,
             @RequestParam("songNotes") String songNotes,
-            @RequestParam("file")MultipartFile multipartFile) {
+            @RequestParam("file") MultipartFile multipartFile) {
         Song song = new Song(albumId, songName, songNotes, songYear);
         songService.addSong(song);
         Long songIdFromDB = song.getId();
-        sourceService.save(multipartFile, song, songIdFromDB);
+
+        decorator.save(multipartFile, song, songIdFromDB);
         return "Ok";
     }
 
     @GetMapping("/file/{name}")
     public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
-            , @RequestParam("storage_type") StorageTypes storage_type) throws IOException {
-        byte[] content = sourceService.findByName(name,storage_type);
+            , @RequestParam("storage_type") String storage_type
+            , @RequestParam("file_type") String file_type) throws IOException {
+        byte[] content = decorator.findByName(name, storage_type, file_type);//Did addition file_type
         return ResponseEntity
                 .ok()
                 .contentLength(content.length)
@@ -84,19 +86,13 @@ public class SongController {
 
     @GetMapping("/exist/{id}")
     boolean existBySourceId(@PathVariable Long id) {
-        return sourceService.isExist(id);
+        return decorator.isExist(id);
     }
 
     @DeleteMapping("/delete/{name}")
     public String deleteSourceBySongName(@PathVariable String name) {
-        sourceService.delete(name);
+        decorator.delete(name);
         songService.deleteSongByName(name);
         return "ok";
     }
-    //        Path filepath = Paths.get(multipartFile.toString(), multipartFile.getOriginalFilename());
-    //        songService.saveSource(multipartFile.getInputStream(),filepath);
-//    @PostMapping("/uploadFiles")  //TODO for ZIP file
-//    public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files) {
-//        return sourceService.saveFiles(files);
-//    }
 }

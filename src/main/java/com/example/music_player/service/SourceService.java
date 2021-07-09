@@ -4,61 +4,59 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
-import com.example.music_player.storage.StorageRouter;
-import com.example.music_player.storage.StorageTypes;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class SourceService implements ISourceService {
 
     private final ISourceRepository sourceRepository;
-  //  private final StorageRouter storageRouter;
     private final IStorageSourceService storageSourceService;
-//    @Autowired
-//    public SourceService(ISourceRepository sourceRepository, StorageRouter storageRouter) {
-//        this.sourceRepository = sourceRepository;
-//        this.storageRouter = storageRouter;
-//    }
 
-        @Autowired
-    public SourceService(ISourceRepository sourceRepository,  IStorageSourceService storageSourceService) {
+    @Autowired
+    public SourceService(ISourceRepository sourceRepository, IStorageSourceService storageSourceService) {
         this.sourceRepository = sourceRepository;
         this.storageSourceService = storageSourceService;
     }
 
     @Transactional
-    public void save(MultipartFile multipartFile, Song song, Long songIdFromDB) {
+    public Source save(MultipartFile multipartFile, Song song, Long songIdFromDB) {
+        List<Source> sourceList = new ArrayList<>();
+
         try {
             InputStream inputStream = multipartFile.getInputStream();
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
-            if (!sourceRepository.isExistByName(song.getName())) {
 
-            List<Source> source=  storageSourceService.save(inputStream, fileName, contentType);
-                source.forEach((x) -> {
+            if (!sourceRepository.isExistByNameAndFileType(song.getName(), contentType)) {
+                sourceList = storageSourceService.save(inputStream, fileName, contentType);
+                sourceList.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
                     sourceRepository.save(x);
+                    log.info("file " + x.getName() + " save in source repository");
                 });
             } else {
-                System.out.println("file " + song.getName() + " in DB is Exist at this moment");
+                log.info("file " + song.getName() + " in DB is Exist at this moment");
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.error("EXCEPTION IN: SourceService save()" + e.getMessage());
         }
+        return sourceList.stream().findAny().orElseThrow(() -> new IllegalStateException("source do not fined"));
     }
 
-    public byte[] findByName(String name, StorageTypes storage_type) throws IOException {
-        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type))
+    public byte[] findByName(String name, String storage_type, String file_type) throws IOException {
+        Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
         return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
@@ -78,22 +76,4 @@ public class SourceService implements ISourceService {
             sourceRepository.deleteById(source.getId());
         });
     }
-//    //save many files for ZIP file
-//    public ResponseEntity<String> saveFiles(MultipartFile[] files) {
-//        List<String> fileNames = new ArrayList<>();
-//        try {
-//            Arrays.stream(files).forEach(file -> {
-//                storageSourceService.saveZip(file.getResource()
-//                        , file.getOriginalFilename()
-//                        , file.getContentType());
-//
-//                fileNames.add(file.getOriginalFilename());
-//            });
-//            String message = "Uploaded the files successfully: " + fileNames;
-//            return ResponseEntity.status(HttpStatus.OK).body(message);
-//        } catch (Exception e) {
-//            String message = "Fail to upload files!";
-//            return ResponseEntity.status(HttpStatus.OK).body(message);
-//        }
-//    }
 }

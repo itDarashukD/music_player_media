@@ -84,4 +84,3 @@ CREATE TABLE IF NOT EXISTS `music_player`.`SourceMetadata`
     PRIMARY KEY (`type`)
 )
     ENGINE = InnoDB;
-

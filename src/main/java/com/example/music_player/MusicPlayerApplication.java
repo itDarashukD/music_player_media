@@ -7,7 +7,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication(scanBasePackages ={ "com.example.music_player"})
 @EnableSwagger2
-
 public class MusicPlayerApplication {
 
 	public static void main(String[] args) {

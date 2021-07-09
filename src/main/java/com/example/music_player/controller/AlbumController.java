@@ -1,7 +1,6 @@
 package com.example.music_player.controller;
 
 import com.example.music_player.entity.Album;
-import com.example.music_player.service.AlbumService;
 import com.example.music_player.service.IAlbumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
