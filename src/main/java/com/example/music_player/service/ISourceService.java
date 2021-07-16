@@ -14,5 +14,5 @@ public interface ISourceService {
 
     boolean isExist(Long id);
 
-    void delete(String name);
+    String  delete(String name);
 }

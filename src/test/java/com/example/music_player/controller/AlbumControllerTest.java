@@ -1,16 +1,16 @@
 package com.example.music_player.controller;
 
+import com.example.music_player.MusicPlayerApplication;
 import com.example.music_player.entity.Album;
 import com.example.music_player.service.AlbumService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
@@ -22,8 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(AlbumController.class)
+@ContextConfiguration(classes = MusicPlayerApplication.class)
+@WebMvcTest(value = AlbumController.class)
 class AlbumControllerTest {
 
     private final Album album1 = new Album(1L, "album1", 2001, "note1");
@@ -39,7 +39,6 @@ class AlbumControllerTest {
     @MockBean
     private AlbumService albumService;
 
-
     @Test
     void findAllAlbums() throws Exception {
         when(albumService.finedAllAlbums()).thenReturn(Arrays.asList(album1, album2));
@@ -48,7 +47,7 @@ class AlbumControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].id", containsInAnyOrder(1, 2)));
-            //    .andExpect(jsonPath("$[*].album_name", containsInAnyOrder("album1", "album2")));
+        //    .andExpect(jsonPath("$[*].album_name", containsInAnyOrder("album1", "album2")));
     }
 
     @Test

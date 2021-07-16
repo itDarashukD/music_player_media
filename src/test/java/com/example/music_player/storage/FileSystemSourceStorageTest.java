@@ -1,5 +1,6 @@
 package com.example.music_player.storage;
 
+import com.example.music_player.MusicPlayerApplication;
 import com.example.music_player.entity.Source;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -16,13 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-//
-//@ContextConfiguration(initializers = ConfigFileApplicationContextInitializer.class)
 
-@SpringBootTest(properties = "application-test.properties")
+@SpringBootTest(properties = "application-test.properties", classes = {MusicPlayerApplication.class} )
 class FileSystemSourceStorageTest {
 
-    // @Value("${path.test.files}") //TODO why it invisible?
     private final String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests";
     private Source source;
     private String sourceFilename;

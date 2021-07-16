@@ -1,5 +1,6 @@
 package com.example.music_player.repository;
 
+import com.example.music_player.MusicPlayerApplication;
 import com.example.music_player.entity.Album;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +22,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+
+@SpringBootTest(classes = {MusicPlayerApplication.class})
 @ActiveProfiles(profiles = "test")
 public class AlbumRepositoryTest {
 

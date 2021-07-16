@@ -26,7 +26,7 @@ class EmbeddedMariaDBConfig {
                           @Value("${spring.datasource.username}") String datasourceUsername,
                           @Value("${spring.datasource.password}") String datasourcePassword,
                           @Value("${spring.datasource.driver-class-name}") String datasourceDriver) throws ManagedProcessException {
-        //Create our database with default root user and no password
+//Create our database with default root user and no password
         mariaDB4jSpringService.getDB().createDB(databaseName);
 //        mariaDB4jSpringService.getDB().source("music_player_tables.sql");
 //        mariaDB4jSpringService.getDB().source("insert_data_into_album.sql");

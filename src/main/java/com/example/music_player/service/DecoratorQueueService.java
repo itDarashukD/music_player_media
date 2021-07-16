@@ -18,6 +18,7 @@ public class DecoratorQueueService implements ISourceService {
     @Value("${activemq.queue.name}")
     private ActiveMQQueue queue;
     private final ISourceService sourceService;
+
     @Autowired
     private JmsTemplate jmsTemplate;
 
@@ -32,10 +33,14 @@ public class DecoratorQueueService implements ISourceService {
         String contentType = source.getFileType();
 
         if (!Objects.requireNonNull(contentType).equals("audio/mpeg")) {
-            jmsTemplate.convertAndSend(queue, source);
-            log.info("file " + source.getName() + "was put in Queue ");
+            JMSConvertAndSend(source);
         }
         return source;
+    }
+
+    private void JMSConvertAndSend(Source source) {
+        jmsTemplate.convertAndSend(queue, source);
+        log.info("file " + source.getName() + "was put in Queue ");
     }
 
     @Override
@@ -49,7 +54,8 @@ public class DecoratorQueueService implements ISourceService {
     }
 
     @Override
-    public void delete(String name) {
+    public String delete(String name) {
         sourceService.delete(name);
+        return "delete " + name;
     }
 }
