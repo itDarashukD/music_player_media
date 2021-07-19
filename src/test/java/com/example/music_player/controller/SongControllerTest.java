@@ -1,37 +1,49 @@
 package com.example.music_player.controller;
 
 import com.example.music_player.MusicPlayerApplication;
-import com.example.music_player.service.AlbumService;
+import com.example.music_player.entity.Song;
 import com.example.music_player.service.ISongService;
+import com.example.music_player.service.ISourceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.catalina.Server;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.OverrideAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
-import org.springframework.boot.test.autoconfigure.filter.TypeExcludeFilters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTypeExcludeFilter;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
 
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = MusicPlayerApplication.class)
-
-@TypeExcludeFilters(WebMvcTypeExcludeFilter.class)
-@AutoConfigureCache
-@AutoConfigureWebMvc
-
 class SongControllerTest {
+
+    private final Song song1 = new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1");
+    private final Song song2 = new Song(2L, 2L, 2L, "name2", "notes2", 2002, "storageTypes2");
+
+    private final String EXPECTED_CONTENT = "1";
+    byte[] testContent = "someContent" .getBytes();
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -42,53 +54,115 @@ class SongControllerTest {
     @MockBean
     private ISongService songService;
 
+    @MockBean
+    private ISourceService decorator;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     @Test
-    void getAll() {
-        assertThat(1).isNotNull();
+    void getAll() throws Exception {
+        when(songService.finedAllSongs()).thenReturn(Arrays.asList(song1, song2));
+        this.mockMvc.perform(get("/song/"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].id", containsInAnyOrder(1, 2)));
     }
 
     @Test
-    void findSongById() {
-        assertThat(1).isNotNull();
+    void findSongById() throws Exception {
+        when(songService.findSongById(anyLong()))
+                .thenReturn(new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1"));
+        this.mockMvc.perform(get("/song/getSong/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(1)))
+                .andExpect(jsonPath("$.year", equalTo(2001)));
     }
 
     @Test
-    void addSong() {
-        assertThat(1).isNotNull();
+    void addSong() throws Exception {
+        Mockito.when(songService.addSong(song1))
+                .thenReturn(song1.getId());
+        this.mockMvc.perform(post("/song/add/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(song1)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(EXPECTED_CONTENT));
     }
 
     @Test
-    void updateAlbum() {
-        assertThat(1).isNotNull();
+    void updateAlbum() throws Exception {
+        when(songService.update(1L, song1)).thenReturn((song1.getId()));
+        this.mockMvc.perform(put("/song/update/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(song1)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(EXPECTED_CONTENT));
     }
 
     @Test
-    void delete() {
-        assertThat(1).isNotNull();
+    void deleteSong() throws Exception {
+        when(songService.deleteById(song1.getId())).thenReturn(String.valueOf(song1.getId()));
+        this.mockMvc.perform(delete("/song/deleteSong/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(EXPECTED_CONTENT));
     }
 
     @Test
-    void deleteByName() {
-        assertThat(1).isNotNull();
+    void deleteByName() throws Exception {
+        when(songService.deleteSongByName(song1.getName())).thenReturn(song1.getName());
+        this.mockMvc.perform(delete("/song/deleteSongByName/name1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("name1"));
     }
 
     @Test
-    void saveFile() {
-        assertThat(1).isNotNull();
+    void saveFile() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!" .getBytes()
+        );
+        MockMvc mockMvc
+                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc.perform(multipart("/song/upload?albumId=1&songName=ewe&songNotes=wee&songYear=2020")
+                .file(file))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void getFileBySourceName() {
-        assertThat(1).isNotNull();
+    void getFileBySourceName() throws Exception {
+        doReturn(testContent).when(decorator).findByName("name1", "storage_type1", "FILE_SYSTEM");
+        MvcResult result
+                = this.mockMvc.perform(MockMvcRequestBuilders.get("/song/file/name1?file_type=FILE_SYSTEM&storage_type=storage_type1"))
+                .andExpect(content().bytes(testContent))
+                .andExpect(MockMvcResultMatchers.status()
+                .is(200))
+                .andReturn();
+        Assertions.assertEquals(200, result.getResponse().getStatus());
     }
 
     @Test
-    void existBySourceId() {
-        assertThat(1).isNotNull();
+    void existBySourceId() throws Exception {
+        doReturn(true).when(decorator).isExist(1L);
+        this.mockMvc.perform(get("/song/exist/1"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test
-    void deleteSourceBySongName() {
-        assertThat(1).isNotNull();
+    void deleteSourceBySongName() throws Exception {
+        when(decorator.delete(song1.getName())).thenReturn(song1.getName());
+        this.mockMvc.perform(delete("/song/delete/name1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("ok"));
     }
 }

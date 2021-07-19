@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -47,7 +48,8 @@ class AlbumControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].id", containsInAnyOrder(1, 2)));
-        //    .andExpect(jsonPath("$[*].album_name", containsInAnyOrder("album1", "album2")));
+//            .andExpect(jsonPath("$[*].album_name", containsInAnyOrder("album1", "album2")));
+
     }
 
     @Test
@@ -60,6 +62,7 @@ class AlbumControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(EXPECTED_CONTENT));
+//        assertThat(1).isNotNull();
     }
 
     @Test
@@ -80,6 +83,7 @@ class AlbumControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(EXPECTED_CONTENT));
+
     }
 
     @Test

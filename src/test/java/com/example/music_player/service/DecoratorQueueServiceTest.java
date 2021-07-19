@@ -5,6 +5,7 @@ import com.example.music_player.entity.Source;
 import org.apache.catalina.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,10 +14,12 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @AutoConfigureMockMvc
@@ -35,6 +38,9 @@ class DecoratorQueueServiceTest {
 
     @MockBean
     ISourceService sourceService;
+
+//    @Autowired
+//    ISourceService sourceService;
 
     @BeforeEach
     public void createSource() {
@@ -62,7 +68,7 @@ class DecoratorQueueServiceTest {
     }
 
     @Test
-    void JMSConvertAndSend() {
+    void JMSConvertAndSendMessage() {
         jmsTemplate.convertAndSend("music_player", source);
         jmsTemplate.setReceiveTimeout(10_000);
         assertThat(jmsTemplate.receiveAndConvert("music_player")).isEqualTo(source);
@@ -70,9 +76,29 @@ class DecoratorQueueServiceTest {
 
     @Test
     void save() {
+        // at work
+        Source sourceMock = Mockito.mock(Source.class);
         when(sourceService.save(any(), any(), anyLong())).thenReturn(source2);
-        assertEquals(source2.getName(), "testName2");
+        when(sourceMock.getFileType()).thenReturn(source2.getFileType());
+
+        if (!Objects.requireNonNull(sourceMock.getFileType()).equals("audio/mpeg")) {
+//            doNothing().when(JMSConvertAndSend(source2));
+//        }
+//    }
+//        private void JMSConvertAndSend(Source source) {
+//            jmsTemplate.convertAndSend(queue, source);
+//            log.info("file " + source.getName() + "was put in Queue ");
+        }
+
+
+
+
+//        assertNotEquals(testSourceService.save(any(), any(), anyLong()), sourceService.save());
+
+//        assertEquals(source2.getName(), "testName2");
     }
+
+
 
     @Test
     void getFileType() {

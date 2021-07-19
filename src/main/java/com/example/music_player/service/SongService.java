@@ -21,7 +21,7 @@ public class SongService implements ISongService {
     }
 
     public List<Song> finedAllSongs() {
-        return Optional.ofNullable(songRepository.finedAllAlbums())
+        return Optional.ofNullable(songRepository.finedAllSongs())
                 .orElseThrow(() -> new IllegalStateException("songs not find"));
     }
 
@@ -50,12 +50,14 @@ public class SongService implements ISongService {
         return song1.getId();
     }
 
-    public void deleteById(Long song_Id) {
-        songRepository.deleteById(song_Id);
+    public String deleteById(Long song_id) {
+        songRepository.deleteById(song_id);
+        return  String .valueOf(song_id);
     }
 
-    public void deleteSongByName(String name) {
+    public String  deleteSongByName(String name) {
         songRepository.deleteByName(name);
+        return name;
     }
 
     public Boolean isExistByName(String name) {

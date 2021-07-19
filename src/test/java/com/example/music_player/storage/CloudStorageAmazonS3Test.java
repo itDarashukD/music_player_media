@@ -57,6 +57,7 @@ public class CloudStorageAmazonS3Test {
         PutObjectRequest request = new PutObjectRequest(bucketName, file.getName(), file);
         request.setGeneralProgressListener(progressListener);
         Upload upload = tm.upload(request);
+
         assertThat(upload).isNotNull();
     }
 

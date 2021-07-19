@@ -41,19 +41,21 @@ public class SongController {
     }
 
     @PutMapping("/update/{id}")
-    public Long updateAlbum(@PathVariable("id") Long id,
-                            @RequestBody Song song) {
+    public Long updateSong(@PathVariable("id") Long id,
+                           @RequestBody Song song) {
         return songService.update(id, song);
     }
 
     @DeleteMapping(value = "/deleteSong/{song_id}")
-    public void delete(@PathVariable Long song_id) {
+    public String deleteSong(@PathVariable Long song_id) {
         songService.deleteById(song_id);
+        return String.valueOf(song_id);
     }
 
     @DeleteMapping(value = "/deleteSongByName/{songName}")
-    public void deleteByName(@PathVariable String songName) {
+    public String  deleteByName(@PathVariable String songName) {
         songService.deleteSongByName(songName);
+        return songName;
     }
 
     @PostMapping("/upload")
