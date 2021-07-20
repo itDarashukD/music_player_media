@@ -47,7 +47,6 @@ class SongServiceTest {
         when(songRepository.finedAllSongs()).thenReturn(songList);
         assertEquals(songService.finedAllSongs(), songList);
         verify(songRepository, times(1)).finedAllSongs();
-
     }
 
     @Test

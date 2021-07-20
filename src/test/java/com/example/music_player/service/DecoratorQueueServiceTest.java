@@ -1,30 +1,23 @@
 package com.example.music_player.service;
 
-import com.example.music_player.MusicPlayerApplication;
+import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
-import org.apache.catalina.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-
-//@AutoConfigureMockMvc
-//@ContextConfiguration(classes = MusicPlayerApplication.class)
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DecoratorQueueServiceTest {
@@ -32,14 +25,22 @@ class DecoratorQueueServiceTest {
     private Source source;
     private Source source2;
     private byte[] testArray;
-    private String testString;
     private Boolean result;
+    private String queueName;
+    private String contentType;
+    private String nullContentType;
 
     @Mock
     private JmsTemplate jmsTemplate;
 
     @Mock
     ISourceService sourceService;
+
+    @Mock
+    Song mockSong;
+
+    @Mock
+    MultipartFile mockMultipartFile;
 
     @BeforeEach
     public void createSource() {
@@ -62,69 +63,58 @@ class DecoratorQueueServiceTest {
                 , "TEST_STORAGE"
                 , "testFileType");
 
+        nullContentType = null;
+        contentType = "mp3";
+        queueName = "music_player";
         testArray = new byte[]{1, 2, 3};
         result = false;
     }
 
     @Test
     void JMSConvertAndSendMessage() {
-        jmsTemplate.convertAndSend("music_player", source);
-        jmsTemplate.setReceiveTimeout(10_000);
-        assertThat(jmsTemplate.receiveAndConvert("music_player")).isEqualTo(source);
+        doNothing().when(jmsTemplate).convertAndSend(anyString(), any(Source.class));
+        jmsTemplate.convertAndSend(queueName, source);
+        verify(jmsTemplate, times(1)).convertAndSend(queueName, source);
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void save() {
-        // at work
-        Source sourceMock = Mockito.mock(Source.class);
         when(sourceService.save(any(), any(), anyLong())).thenReturn(source2);
-        when(sourceMock.getFileType()).thenReturn(source2.getFileType());
-
-        if (!Objects.requireNonNull(sourceMock.getFileType()).equals("audio/mpeg")) {
-//            doNothing().when(JMSConvertAndSend(source2));
-//        }
-//    }
-//        private void JMSConvertAndSend(Source source) {
-//            jmsTemplate.convertAndSend(queue, source);
-//            log.info("file " + source.getName() + "was put in Queue ");
-        }
-
-
-
-
-//        assertNotEquals(testSourceService.save(any(), any(), anyLong()), sourceService.save());
-
-//        assertEquals(source2.getName(), "testName2");
+        sourceService.save(mockMultipartFile, mockSong, 2L);
+        verify(sourceService, times(1)).save(mockMultipartFile, mockSong, 2L);
     }
 
 
-
     @Test
-    void getFileType() {
-        String contentType = source.getFileType();
-        assertEquals(contentType, "testFileType");
+    void whenContentTypeIsNotAudioOrMpeg() {
+//        source2.setFileType(nullContentType);
+//        verify(jmsTemplate).convertAndSend(queueName, source2);
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void findByName() throws IOException {
-        when(sourceService.findByName(anyString(), anyString(), anyString()))
-                .thenReturn(testArray);
+        when(sourceService.findByName(anyString(), anyString(), anyString())).thenReturn(testArray);
         assertEquals(testArray.length, 3);
+        sourceService.findByName(source.getName(), source.getStorage_types(), source.getFileType());
+        verify(sourceService, times(1)).findByName(anyString(), anyString(), anyString());
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void isExist() {
         when(sourceService.isExist(anyLong())).thenReturn(result = true);
         assertThat(result).isEqualTo(true);
+        sourceService.isExist(source.getId());
+        verify(sourceService, times(1)).isExist(anyLong());
     }
 
     @Test
     void delete() {
         when(sourceService.delete(anyString())).thenReturn(true);
-        assertThat(sourceService.delete("testString")).isEqualTo(true);
+        assertEquals(sourceService.delete(source.getName()), true);
+        verify(sourceService, times(1)).delete(anyString());
     }
 }
 

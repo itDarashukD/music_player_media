@@ -132,7 +132,7 @@ class SongControllerTest {
         this.mockMvc.perform(MockMvcRequestBuilders.get("/song/file/name1?file_type=FILE_SYSTEM&storage_type=storage_type1"))
                 .andExpect(content().bytes(testContent))
                 .andExpect(MockMvcResultMatchers.status()
-                        .is(200))
+                .is(200))
                 .andReturn();
     }
 
