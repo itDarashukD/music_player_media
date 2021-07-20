@@ -5,13 +5,14 @@ import com.example.music_player.entity.Source;
 import org.apache.catalina.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -19,12 +20,13 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@AutoConfigureMockMvc
-@ContextConfiguration(classes = MusicPlayerApplication.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
+//@AutoConfigureMockMvc
+//@ContextConfiguration(classes = MusicPlayerApplication.class)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
+
+@ExtendWith(MockitoExtension.class)
 class DecoratorQueueServiceTest {
 
     private Source source;
@@ -33,14 +35,11 @@ class DecoratorQueueServiceTest {
     private String testString;
     private Boolean result;
 
-    @Autowired
+    @Mock
     private JmsTemplate jmsTemplate;
 
-    @MockBean
+    @Mock
     ISourceService sourceService;
-
-//    @Autowired
-//    ISourceService sourceService;
 
     @BeforeEach
     public void createSource() {
@@ -75,6 +74,7 @@ class DecoratorQueueServiceTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
     void save() {
         // at work
         Source sourceMock = Mockito.mock(Source.class);
@@ -107,6 +107,7 @@ class DecoratorQueueServiceTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
     void findByName() throws IOException {
         when(sourceService.findByName(anyString(), anyString(), anyString()))
                 .thenReturn(testArray);
@@ -114,6 +115,7 @@ class DecoratorQueueServiceTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
     void isExist() {
         when(sourceService.isExist(anyLong())).thenReturn(result = true);
         assertThat(result).isEqualTo(true);
@@ -121,8 +123,8 @@ class DecoratorQueueServiceTest {
 
     @Test
     void delete() {
-        when(sourceService.delete(anyString())).thenReturn(testString = "testString");
-        assertThat(testString).isEqualTo("testString");
+        when(sourceService.delete(anyString())).thenReturn(true);
+        assertThat(sourceService.delete("testString")).isEqualTo(true);
     }
 }
 

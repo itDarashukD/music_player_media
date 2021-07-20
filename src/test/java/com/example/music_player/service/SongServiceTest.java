@@ -1,17 +1,17 @@
 package com.example.music_player.service;
 
-import com.example.music_player.MusicPlayerApplication;
 import com.example.music_player.entity.Song;
 import com.example.music_player.repository.ISongRepository;
-import org.apache.catalina.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +20,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
+
 @ExtendWith(MockitoExtension.class)
-@ContextConfiguration(classes = MusicPlayerApplication.class)
 class SongServiceTest {
 
-    @MockBean
+    @Mock
     private ISongRepository songRepository;
 
-    @Autowired
-    private ISongService songService;
+    @InjectMocks
+    private SongService songService;
 
     private Song song1;
     private Song song2;
@@ -77,6 +76,7 @@ class SongServiceTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)//lenient `stubbing
     void deleteById() {
         when(songRepository.findById(anyLong())).thenReturn(song1);
         songService.deleteById(song1.getId());
@@ -84,16 +84,17 @@ class SongServiceTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void deleteSongByName() {
         doNothing().when(songRepository).deleteByName(song1.getName());
         songService.deleteSongByName(song1.getName());
-        verify(songRepository,times(1)).deleteByName(song1.getName());
+        verify(songRepository, times(1)).deleteByName(song1.getName());
     }
 
     @Test
     void isExistByName() {
         when(songRepository.isExistByName(song1.getName())).thenReturn(true);
         songService.isExistByName(song1.getName());
-        verify(songRepository,times(1)).isExistByName(song1.getName());
+        verify(songRepository, times(1)).isExistByName(song1.getName());
     }
 }

@@ -54,8 +54,8 @@ public class DecoratorQueueService implements ISourceService {
     }
 
     @Override
-    public String delete(String name) {
+    public Boolean delete(String name) {
         sourceService.delete(name);
-        return "delete " + name;
+        return true;
     }
 }

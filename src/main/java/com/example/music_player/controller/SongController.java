@@ -47,15 +47,15 @@ public class SongController {
     }
 
     @DeleteMapping(value = "/deleteSong/{song_id}")
-    public String deleteSong(@PathVariable Long song_id) {
+    public Boolean deleteSong(@PathVariable Long song_id) {
         songService.deleteById(song_id);
-        return String.valueOf(song_id);
+        return true;
     }
 
     @DeleteMapping(value = "/deleteSongByName/{songName}")
-    public String  deleteByName(@PathVariable String songName) {
+    public Boolean  deleteByName(@PathVariable String songName) {
         songService.deleteSongByName(songName);
-        return songName;
+        return true;
     }
 
     @PostMapping("/upload")
@@ -92,9 +92,9 @@ public class SongController {
     }
 
     @DeleteMapping("/delete/{name}")
-    public String deleteSourceBySongName(@PathVariable String name) {
+    public Boolean deleteSourceBySongName(@PathVariable String name) {
         decorator.delete(name);
         songService.deleteSongByName(name);
-        return "ok";
+        return true;
     }
 }

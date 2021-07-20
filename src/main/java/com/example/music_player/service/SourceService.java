@@ -68,13 +68,13 @@ public class SourceService implements ISourceService {
         return storageSourceService.isExist(source);
     }
 
-    public String  delete(String name) {
+    public Boolean  delete(String name) {
         List<Source> sourceList = Optional.ofNullable(sourceRepository.findAllByName(name))//TODO list by names
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         sourceList.forEach((source) -> {
             storageSourceService.delete(source);
             sourceRepository.deleteById(source.getId());
         });
-        return "Delete sorce " + name;
+        return true;
     }
 }

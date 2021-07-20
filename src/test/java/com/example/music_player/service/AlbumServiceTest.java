@@ -1,17 +1,13 @@
 package com.example.music_player.service;
 
-import com.example.music_player.MusicPlayerApplication;
 import com.example.music_player.entity.Album;
 import com.example.music_player.repository.IAlbumRepository;
-import org.apache.catalina.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
-@ExtendWith(MockitoExtension.class)
-@ContextConfiguration(classes = MusicPlayerApplication.class)
-class AlbumServiceTest {
 
-    @MockBean
+@ExtendWith(MockitoExtension.class)
+ class AlbumServiceTest {
+
+    @Mock
     private IAlbumRepository albumRepository;
 
-    @Autowired
+    @InjectMocks
     private AlbumService albumService;
 
     private Album album1;

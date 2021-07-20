@@ -5,24 +5,17 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.catalina.Server;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 
@@ -34,16 +27,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Server.class)
-@AutoConfigureMockMvc
+
 @ContextConfiguration(classes = MusicPlayerApplication.class)
+@WebMvcTest(value = SongController.class)
 class SongControllerTest {
 
     private final Song song1 = new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1");
     private final Song song2 = new Song(2L, 2L, 2L, "name2", "notes2", 2002, "storageTypes2");
 
     private final String EXPECTED_CONTENT = "1";
-    byte[] testContent = "someContent" .getBytes();
+    private byte[] testContent = "someContent".getBytes();
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -56,9 +49,6 @@ class SongControllerTest {
 
     @MockBean
     private ISourceService decorator;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
 
     @Test
     void getAll() throws Exception {
@@ -106,20 +96,20 @@ class SongControllerTest {
 
     @Test
     void deleteSong() throws Exception {
-        when(songService.deleteById(song1.getId())).thenReturn(String.valueOf(song1.getId()));
+        when(songService.deleteById(song1.getId())).thenReturn(true);
         this.mockMvc.perform(delete("/song/deleteSong/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(EXPECTED_CONTENT));
+                .andExpect(content().string("true"));
     }
 
     @Test
     void deleteByName() throws Exception {
-        when(songService.deleteSongByName(song1.getName())).thenReturn(song1.getName());
+        when(songService.deleteSongByName(song1.getName())).thenReturn(true);
         this.mockMvc.perform(delete("/song/deleteSongByName/name1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("name1"));
+                .andExpect(content().string("true"));
     }
 
     @Test
@@ -128,11 +118,10 @@ class SongControllerTest {
                 "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
-                "Hello, World!" .getBytes()
+                "Hello, World!".getBytes()
         );
-        MockMvc mockMvc
-                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        mockMvc.perform(multipart("/song/upload?albumId=1&songName=ewe&songNotes=wee&songYear=2020")
+
+        mockMvc.perform(multipart("/song/upload?albumId=1&songName=name1&songNotes=notes1&songYear=2020")
                 .file(file))
                 .andExpect(status().isOk());
     }
@@ -140,13 +129,11 @@ class SongControllerTest {
     @Test
     void getFileBySourceName() throws Exception {
         doReturn(testContent).when(decorator).findByName("name1", "storage_type1", "FILE_SYSTEM");
-        MvcResult result
-                = this.mockMvc.perform(MockMvcRequestBuilders.get("/song/file/name1?file_type=FILE_SYSTEM&storage_type=storage_type1"))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/song/file/name1?file_type=FILE_SYSTEM&storage_type=storage_type1"))
                 .andExpect(content().bytes(testContent))
                 .andExpect(MockMvcResultMatchers.status()
-                .is(200))
+                        .is(200))
                 .andReturn();
-        Assertions.assertEquals(200, result.getResponse().getStatus());
     }
 
     @Test
@@ -159,10 +146,10 @@ class SongControllerTest {
 
     @Test
     void deleteSourceBySongName() throws Exception {
-        when(decorator.delete(song1.getName())).thenReturn(song1.getName());
+        when(decorator.delete(song1.getName())).thenReturn(true);
         this.mockMvc.perform(delete("/song/delete/name1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("ok"));
+                .andExpect(content().string("true"));
     }
 }

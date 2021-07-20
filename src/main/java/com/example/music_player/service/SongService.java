@@ -50,14 +50,14 @@ public class SongService implements ISongService {
         return song1.getId();
     }
 
-    public String deleteById(Long song_id) {
+    public Boolean deleteById(Long song_id) {
         songRepository.deleteById(song_id);
-        return  String .valueOf(song_id);
+        return true;
     }
 
-    public String  deleteSongByName(String name) {
+    public Boolean deleteSongByName(String name) {
         songRepository.deleteByName(name);
-        return name;
+        return true;
     }
 
     public Boolean isExistByName(String name) {
