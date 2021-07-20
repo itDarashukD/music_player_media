@@ -29,7 +29,7 @@ public interface ISongRepository {
     Song findById(@Param("id") Long id);
 
     @Select("SELECT * FROM Song")
-    List<Song> finedAllAlbums();
+    List<Song> finedAllSongs();
 
     @Select("SELECT * FROM Song WHERE name = #{name}")
     Song findByName(@Param("name") String name);

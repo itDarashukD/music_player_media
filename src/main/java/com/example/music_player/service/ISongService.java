@@ -14,10 +14,10 @@ public interface ISongService {
 
     Long update(Long id, Song song);
 
-    void deleteById(Long song_Id);
+    Boolean  deleteById(Long song_Id);
 
     Boolean isExistByName(String name);
 
-    void deleteSongByName(String name);
+    Boolean  deleteSongByName(String name);
 }
 

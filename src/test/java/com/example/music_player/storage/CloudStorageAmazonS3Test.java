@@ -57,15 +57,8 @@ public class CloudStorageAmazonS3Test {
         PutObjectRequest request = new PutObjectRequest(bucketName, file.getName(), file);
         request.setGeneralProgressListener(progressListener);
         Upload upload = tm.upload(request);
-        assertThat(upload).isNotNull();
-        //   verify(s3Client).putObject(request);
 
-//        File file = mock(File.class);
-//        PutObjectResult result = mock(PutObjectResult.class);
-//        when(s3Client.putObject(anyString(), anyString(), (File) any())).thenReturn(result);
-//
-//        assertThat(s3Client.putObject(bucketName, KEY_NAME, file)).isEqualTo(result);
-//        verify(s3Client).putObject(bucketName, KEY_NAME, file);
+        assertThat(upload).isNotNull();
     }
 
     @Test
@@ -75,14 +68,7 @@ public class CloudStorageAmazonS3Test {
 
         assertThat(s3Client.getObject(bucketName, KEY_NAME).equals(s3Object));
         verify(s3Client).getObject(bucketName, KEY_NAME);
-//        S3Object s3Object = mock(S3Object.class);
-//        Mockito.when(s3Client.getObject(bucketName, KEY_NAME)).thenReturn(s3Object);
-//        this.mockMvc.perform(MockMvcRequestBuilders.get("/file/name"))
-//
-//                .andDo(print())
-//                .andExpect(status().isOk());
-        //.andExpect(s3Object.getObjectContent(),)
-    }
+     }
 
     @Test
     public void delete() {

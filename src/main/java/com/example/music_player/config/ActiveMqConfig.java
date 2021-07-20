@@ -5,6 +5,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
@@ -30,7 +31,7 @@ public class ActiveMqConfig {
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
 
-        Map<String, Class<?>> typeIdMappings = new HashMap<String, Class<?>>();
+        Map<String, Class<?>> typeIdMappings = new HashMap<>();
         typeIdMappings.put("JMS_TYPE", Source.class);
         messageConverter.setTypeIdMappings(typeIdMappings);
 
