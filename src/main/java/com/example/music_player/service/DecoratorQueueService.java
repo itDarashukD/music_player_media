@@ -33,12 +33,13 @@ public class DecoratorQueueService implements ISourceService {
         String contentType = source.getFileType();
 
         if (!Objects.requireNonNull(contentType).equals("audio/mpeg")) {
+            log.info("IN DecoratorQueueService save() : JMSConvertAndSend() ready to put file in Queue");
             JMSConvertAndSend(source);
         }
         return source;
     }
 
-    private void JMSConvertAndSend(Source source) {
+    public void JMSConvertAndSend(Source source) {
         jmsTemplate.convertAndSend(queue, source);
         log.info("file " + source.getName() + "was put in Queue ");
     }

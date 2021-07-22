@@ -120,7 +120,6 @@ class SongControllerTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-
         mockMvc.perform(multipart("/song/upload?albumId=1&songName=name1&songNotes=notes1&songYear=2020")
                 .file(file))
                 .andExpect(status().isOk());
@@ -151,7 +150,5 @@ class SongControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
-
-
     }
 }
