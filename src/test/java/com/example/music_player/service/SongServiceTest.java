@@ -95,5 +95,7 @@ class SongServiceTest {
         when(songRepository.isExistByName(song1.getName())).thenReturn(true);
         songService.isExistByName(song1.getName());
         verify(songRepository, times(1)).isExistByName(song1.getName());
+
+
     }
 }

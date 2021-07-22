@@ -90,5 +90,8 @@ import static org.mockito.Mockito.*;
         albumService.update(album1.getId(), album1);
         verify(albumRepository).update(album1);
         assertThat(album1.getName()).isEqualTo("testName1");
+
+
+
     }
 }
