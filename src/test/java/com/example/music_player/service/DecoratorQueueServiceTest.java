@@ -2,11 +2,14 @@ package com.example.music_player.service;
 
 import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -19,9 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 class DecoratorQueueServiceTest {
 
     private Source source1;
@@ -31,6 +35,7 @@ class DecoratorQueueServiceTest {
     private String destination;
 
     @Mock
+//    @Spy
     JmsTemplate jmsTemplate;
 
     @Mock
@@ -42,14 +47,18 @@ class DecoratorQueueServiceTest {
     @Mock
     MultipartFile mockMultipartFile;
 
+    @Mock
+    ActiveMQQueue queue;
+
+    @Mock
+    Source mockSource;
+
     @InjectMocks
     DecoratorQueueService mockDecoratorQueueService;
 
-//    @Mock
-//    DecoratorQueueService mockDecoratorQueueService2 = new DecoratorQueueService(sourceService);
-
     @BeforeEach
     public void createSource() {
+
         source1 = new Source(1111L
                 , 1L
                 , 1L
@@ -72,7 +81,6 @@ class DecoratorQueueServiceTest {
         testArray = new byte[]{1, 2, 3};
         result = false;
         destination = "testDestination";
-
     }
 
     @Test
@@ -86,29 +94,26 @@ class DecoratorQueueServiceTest {
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT) //TODO
+    @MockitoSettings(strictness = Strictness.LENIENT)
+        //TODO NULLPOInter jmsTemplate, how to properly mock jmsTemplate
     void saveWhenContentTypeNotAudioOrMpeg() {
-//        when(sourceService.save(mockMultipartFile, mockSong,  mockSong.getId())).thenReturn(source1);
-//        source1.setFileType("notAudioOrMpeg");
-//        doNothing().when(mockDecoratorQueueService2).JMSConvertAndSend(source1);
-//
-//        mockDecoratorQueueService2.save(mockMultipartFile, mockSong, mockSong.getId());
-//    //    verify(sourceService, times(1)).save(mockMultipartFile, mockSong,  mockSong.getId());//
-//        verify(mockDecoratorQueueService2,times(1)).JMSConvertAndSend(source1);
-    }
-    @Test
-    void JMSConvertAndSend(){ //TODO
-//        doNothing().when(jmsTemplate).convertAndSend(destination, source1);
-//        mockDecoratorQueueService.JMSConvertAndSend(source1);
-//        verify(jmsTemplate,times(1)).convertAndSend(destination,source1);
+        when(sourceService.save(mockMultipartFile, mockSong, mockSong.getId())).thenReturn(source1);
+        source1.setFileType("notAudioOrMpeg");
+        doNothing().when(jmsTemplate).convertAndSend(queue, mockSource);
+
+        mockDecoratorQueueService.save(mockMultipartFile, mockSong, mockSource.getId());
+
+        verify(jmsTemplate, times(1)).convertAndSend(queue, mockSource);
     }
 
     @Test
     void findByName() throws IOException {
+
         when(sourceService.findByName(anyString(), anyString(), anyString())).thenReturn(testArray);
         assertEquals(testArray.length, 3);
         mockDecoratorQueueService.findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
-        verify(sourceService, times(1)).findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
+        verify(sourceService, times(1))
+                .findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
     }
 
     @Test
@@ -125,6 +130,5 @@ class DecoratorQueueServiceTest {
         assertEquals(mockDecoratorQueueService.delete(source1.getName()), true);
         verify(sourceService, times(1)).delete(source1.getName());
     }
-
 }
 

@@ -8,10 +8,8 @@ import com.example.music_player.entity.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -40,9 +38,10 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         boolean found = s3Client.doesBucketExistV2(bucketName);
 
         if (!found) {
+            log.info("IN save() :Bucket " + bucketName + " start creating.");
             s3Client.createBucket(bucketName);
         } else {
-            System.out.println("Bucket " + bucketName + "  already exists.");
+            log.info("IN save() :Bucket " + bucketName + "  already exists.");
         }
 
         s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, fileObject));
@@ -75,17 +74,8 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
 
     @Override
     public InputStream findSongBySource(Source source) {
-        byte[] content;
         S3Object s3Object = s3Client.getObject(bucketName, source.getName());
-        S3ObjectInputStream s3InputStream = s3Object.getObjectContent();
-        try {
-            content = IOUtils.toByteArray(s3InputStream);
-            return new ByteArrayResource(content).getInputStream();
-
-        } catch (IOException e) {
-            log.info("IN findSongBySource() :" + e.getMessage());
-        }
-        return InputStream.nullInputStream();
+        return s3Object.getObjectContent();
     }
 
     @Override

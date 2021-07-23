@@ -39,9 +39,10 @@ public class DecoratorQueueService implements ISourceService {
         return source;
     }
 
-    public void JMSConvertAndSend(Source source) {
+    public Boolean JMSConvertAndSend(Source source) {
         jmsTemplate.convertAndSend(queue, source);
         log.info("file " + source.getName() + "was put in Queue ");
+        return true;
     }
 
     @Override
