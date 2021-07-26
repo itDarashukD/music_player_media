@@ -47,7 +47,7 @@ public class SourceService implements ISourceService {
                     log.info("file " + x.getName() + " save in source repository");
                 });
             } else {
-                log.info("file " + song.getName() + " in DB is Exist at this moment");
+                log.info("file " + song.getName() + " is exist at this moment in DB ");
             }
         } catch (IOException e) {
             log.error("EXCEPTION IN: SourceService save()" + e.getMessage());
@@ -59,7 +59,8 @@ public class SourceService implements ISourceService {
         Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
-        return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
+        final byte[] bytes = IOUtils.toByteArray(storageSourceService.findSongBySource(source));
+        return bytes;
     }
 
     public boolean isExist(Long id) {

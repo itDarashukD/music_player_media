@@ -1,26 +1,26 @@
 package com.example.music_player.service;
 
-import com.amazonaws.util.IOUtils;
+import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,13 +32,19 @@ class SourceServiceTest {
     private byte[] testArray;
     private Boolean testBoolean;
     private List<Source> sourceList;
+    private InputStream inputStream;
 
     @Mock
     ISourceRepository sourceRepository;
     @Mock
     IStorageSourceService storageSourceService;
     @Mock
-    InputStream inputStream;
+    MultipartFile mockMultipartFile;
+    @Mock
+    Song song;
+    @InjectMocks
+    SourceService sourceService;
+
 
     @BeforeEach
     public void setup() {
@@ -51,105 +57,82 @@ class SourceServiceTest {
         testArray = "testByteArray".getBytes();
         testBoolean = false;
         sourceList = List.of(source1, source2);
+        inputStream = new ByteArrayInputStream(StandardCharsets.UTF_16.encode("testString").array());
     }
 
     @Test
-    void save() {
+    void saveWhenSourceDoNotExist() throws IOException {
+        when(sourceRepository.isExistByNameAndFileType(song.getName()
+                , mockMultipartFile.getContentType()))
+                .thenReturn(testBoolean);
+        when(storageSourceService.save(
+                mockMultipartFile.getInputStream()
+                , mockMultipartFile.getName()
+                , mockMultipartFile.getContentType()))
+                .thenReturn(sourceList);
+        doNothing().when(sourceRepository).save(source1);
 
+        sourceService.save(mockMultipartFile, song, song.getId());
+        assertEquals(testBoolean, false);
+        verify(storageSourceService, times(1))
+                .save(mockMultipartFile.getInputStream()
+                        , mockMultipartFile.getName()
+                        , mockMultipartFile.getContentType());
+        verify(sourceRepository, times(1)).save(source1);
     }
 
     @Test
-    void findByName() {
-        when(sourceRepository.findByNameAndStorageType(anyString(), anyString(), anyString()))
+    void saveWhenSourceExist() throws IOException {//second branch of save() method
+        lenient().when(sourceRepository.isExistByNameAndFileType(song.getName()
+                , mockMultipartFile.getContentType()))
+                .thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                        sourceService.save(mockMultipartFile, song, song.getId()),
+                "source do not fined");
+        String expectedMessage = "do not fined";
+        Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
+
+        verify(storageSourceService, times(0)).save(mockMultipartFile.getInputStream()
+                , mockMultipartFile.getName()
+                , mockMultipartFile.getContentType());
+        verify(sourceRepository, times(0)).save(source1);
+    }
+
+    @Test
+    void findByName() throws IOException { //TODO second branch
+        lenient().when(sourceRepository.findByNameAndStorageType(
+                source1.getName()
+                , source1.getStorage_types()
+                , source1.getFileType()))
                 .thenReturn(source1);
-        assertEquals(sourceRepository.findByNameAndStorageType(source1.getName(), source1.getStorage_types(), source1.getFileType()), source1);
-        verify(sourceRepository, times(1)).findByNameAndStorageType(anyString(), anyString(), anyString());
-    }
+        when(storageSourceService.findSongBySource(source1)).thenReturn(inputStream);
 
-    @Test
-    void setStorageType() {
-        source1.setStorage_types(testStorage_type);
-        assertEquals(source1.getStorage_types(), testStorage_type);
-    }
-
-    @Test
-    void thatReturnInputStream() throws IOException {
-        when(storageSourceService.findSongBySource(any(Source.class))).thenReturn(inputStream);
-        storageSourceService.findSongBySource(source1);
-        verify(storageSourceService, times(1)).findSongBySource(any(Source.class));
-    }
-
-    @Test
-    void thatReturnByteArray() throws IOException {
-        InputStream targetStream = new ByteArrayInputStream("test".getBytes());
-        MockedStatic<IOUtils> utilities = Mockito.mockStatic(IOUtils.class);
-
-        utilities.when(() -> IOUtils.toByteArray(targetStream)).thenReturn(testArray);
-        //  IOUtils.toByteArray(targetStream);
-        int l = IOUtils.toByteArray(targetStream).length;
-        assertEquals(l, "testByteArray".getBytes().length);
-//        verify(IOUtils,times(1)).toByteArray(any(Source.class));
-    }
-
-    @Test
-    void finedSourceByIdInIsExist() {
-        when(sourceRepository.findById(anyLong())).thenReturn(source1);
-        sourceRepository.findById(source1.getId());
-        verify(sourceRepository, times(1)).findById(anyLong());
+        sourceService.findByName(source1.getName(), source1.getStorage_types(), source1.getFileType());
+        verify(sourceRepository, times(1))
+                .findByNameAndStorageType(
+                        source1.getName()
+                        , source1.getStorage_types()
+                        , source1.getFileType());
     }
 
     @Test
     void isExist() {
-        when(storageSourceService.isExist(any(Source.class))).thenReturn(testBoolean = true);
-        assertEquals(testBoolean, true);
-        storageSourceService.isExist(source1);
-        verify(storageSourceService, times(1)).isExist(any(Source.class));
-    }
-
-
-    @Test
-    void getListOfSourceInDelete() {
-        when(sourceRepository.findAllByName(anyString())).thenReturn(sourceList);
-        sourceRepository.findAllByName(source1.getName());
-        verify(sourceRepository, times(1)).findAllByName(anyString());
+        when(sourceRepository.findById(anyLong())).thenReturn(source1);
+        when(storageSourceService.isExist(source1)).thenReturn(testBoolean = true);
+        assertEquals(sourceService.isExist(source1.getId()), true);
+        verify(sourceRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    void whenSourceListInDeleteIsEmpty() {
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            throw new IllegalStateException("source with + name +  do not fined");
-        });
-        lenient().when(sourceRepository.findAllByName(anyString()))
-                .thenReturn(null)
-                .thenThrow(exception);
-        sourceRepository.findAllByName(source1.getName());
-        verify(sourceRepository, times(1)).findAllByName(anyString());
-
-        String expectedMessage = "do not fined";
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
-
-    @Test
-    void whenStorageSourceServiceInDelete() {
-        doNothing().when(storageSourceService).delete(any(Source.class));
-        storageSourceService.delete(source1);
-        verify(storageSourceService, times(1)).delete(any(Source.class));
-
-    }
-
-    @Test
-    void whenSourceRepositoryInDelete() {
-        doNothing().when(sourceRepository).deleteById(anyLong());
-        sourceRepository.deleteById(source1.getId());
-        verify(sourceRepository, times(1)).deleteById(anyLong());
-
-    }
-
-    @Test
-    void delete() { //TODO
-
-
-
+    void delete() {//TODO: second branch
+        when(sourceRepository.findAllByName(source2.getName()))
+                .thenReturn(sourceList);
+        doNothing().when(storageSourceService).delete(sourceList.get(0));
+        doNothing().when(sourceRepository).deleteById(sourceList.get(0).getId());
+        sourceService.delete(source2.getName());
+        verify(storageSourceService, times(1)).delete(sourceList.get(0));
+        verify(sourceRepository, times(1)).deleteById(sourceList.get(0).getId());
+        verify(sourceRepository, times(1)).findAllByName(source2.getName());
     }
 }
