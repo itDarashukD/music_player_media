@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,6 +35,7 @@ class SourceServiceTest {
     private Boolean testBoolean;
     private List<Source> sourceList;
     private InputStream inputStream;
+    private Long songIdFromDB;
 
     @Mock
     ISourceRepository sourceRepository;
@@ -44,6 +47,8 @@ class SourceServiceTest {
     Song song;
     @InjectMocks
     SourceService sourceService;
+    @Captor
+    ArgumentCaptor<Source> sourceArgumentCaptor;
 
 
     @BeforeEach
@@ -62,18 +67,22 @@ class SourceServiceTest {
 
     @Test
     void saveWhenSourceDoNotExist() throws IOException {
+
         when(sourceRepository.isExistByNameAndFileType(song.getName()
                 , mockMultipartFile.getContentType()))
-                .thenReturn(testBoolean);
+                .thenReturn(false);
         when(storageSourceService.save(
                 mockMultipartFile.getInputStream()
                 , mockMultipartFile.getName()
                 , mockMultipartFile.getContentType()))
                 .thenReturn(sourceList);
-        doNothing().when(sourceRepository).save(source1);
 
         sourceService.save(mockMultipartFile, song, song.getId());
-        assertEquals(testBoolean, false);
+
+        verify(sourceRepository, times(2)).save(sourceArgumentCaptor.capture());
+        List<Source> captorSource = sourceArgumentCaptor.getAllValues();
+        assertEquals(source1.getSong_id(), captorSource.get(0).getSong_id());
+        assertEquals(source2.getSong_id(), captorSource.get(1).getSong_id());
         verify(storageSourceService, times(1))
                 .save(mockMultipartFile.getInputStream()
                         , mockMultipartFile.getName()
@@ -93,10 +102,10 @@ class SourceServiceTest {
         String expectedMessage = "do not fined";
         Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
 
-        verify(storageSourceService, times(0)).save(mockMultipartFile.getInputStream()
+        verify(storageSourceService, never()).save(mockMultipartFile.getInputStream()
                 , mockMultipartFile.getName()
                 , mockMultipartFile.getContentType());
-        verify(sourceRepository, times(0)).save(source1);
+        verify(sourceRepository, never()).save(source1);
     }
 
     @Test
@@ -109,11 +118,10 @@ class SourceServiceTest {
         when(storageSourceService.findSongBySource(source1)).thenReturn(inputStream);
 
         sourceService.findByName(source1.getName(), source1.getStorage_types(), source1.getFileType());
-        verify(sourceRepository, times(1))
-                .findByNameAndStorageType(
-                        source1.getName()
-                        , source1.getStorage_types()
-                        , source1.getFileType());
+        verify(sourceRepository, times(1)).findByNameAndStorageType(
+                source1.getName()
+                , source1.getStorage_types()
+                , source1.getFileType());
     }
 
     @Test
@@ -126,13 +134,11 @@ class SourceServiceTest {
 
     @Test
     void delete() {//TODO: second branch
-        when(sourceRepository.findAllByName(source2.getName()))
-                .thenReturn(sourceList);
-        doNothing().when(storageSourceService).delete(sourceList.get(0));
-        doNothing().when(sourceRepository).deleteById(sourceList.get(0).getId());
+        when(sourceRepository.findAllByName(source2.getName())).thenReturn(sourceList);
+
         sourceService.delete(source2.getName());
-        verify(storageSourceService, times(1)).delete(sourceList.get(0));
-        verify(sourceRepository, times(1)).deleteById(sourceList.get(0).getId());
+        verify(storageSourceService, times(1)).delete(sourceList.get(sourceList.indexOf(source2)));
+        verify(sourceRepository, times(1)).deleteById(sourceList.get(sourceList.indexOf(source2)).getId());
         verify(sourceRepository, times(1)).findAllByName(source2.getName());
     }
 }

@@ -59,8 +59,7 @@ public class SourceService implements ISourceService {
         Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))
                 .orElseThrow(() -> new IllegalStateException("source with " + name + " do not fined"));
         source.setStorage_types(storage_type);
-        final byte[] bytes = IOUtils.toByteArray(storageSourceService.findSongBySource(source));
-        return bytes;
+        return IOUtils.toByteArray(storageSourceService.findSongBySource(source));
     }
 
     public boolean isExist(Long id) {

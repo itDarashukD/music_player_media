@@ -3,7 +3,6 @@ package com.example.music_player.storage;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.example.music_player.entity.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -86,13 +85,14 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
 
     @Override
     public boolean isExist(Source source) {
-        Boolean isObjectExist = false;
+        log.info("IN isExist() : method started");
         S3Object s3Object = s3Client.getObject(bucketName, source.getName());
-        S3ObjectInputStream s3InputStream = s3Object.getObjectContent();
-        if (s3InputStream != null) {
-            isObjectExist = true;
+        if (s3Object != null) {
+            log.info("IN isExist() : s3Object not null!");
+            return true;
         }
-        return isObjectExist;
+        log.info("IN isExist() : s3Object = null!");
+        return false;
     }
 
     @Override

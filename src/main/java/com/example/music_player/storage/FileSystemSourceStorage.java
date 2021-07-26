@@ -29,6 +29,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         path = Paths.get(pathLocalStorage, originalFilename);
         if (!Files.exists(path)) {
+            log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
                 Files.copy(inputStream
                         , path
@@ -48,7 +49,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
                 , DigestUtils.md5Hex(originalFilename)
                 , contentType);
 
-        source.setStorage_types( "FILE_SYSTEM");
+        source.setStorage_types("FILE_SYSTEM");
         source.setStorage_id(1L);
         return Collections.singletonList(source);
     }
@@ -56,7 +57,8 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @Override
     public InputStream findSongBySource(Source source) throws IOException {
         Path path = Paths.get(source.getPath(), source.getName());
-        return new FileSystemResource(path).getInputStream();
+        final InputStream inputStream = new FileSystemResource(path).getInputStream();
+        return inputStream;
     }
 
     @Override

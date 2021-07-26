@@ -14,8 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.jms.Destination;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,10 +34,8 @@ class DecoratorQueueServiceTest {
     private Source source2;
     private byte[] testArray;
     private Boolean result;
-    private String destination;
 
     @Mock
-//    @Spy
     JmsTemplate jmsTemplate;
 
     @Mock
@@ -53,8 +53,11 @@ class DecoratorQueueServiceTest {
     @Mock
     Source mockSource;
 
+    @Mock
+    Destination destination;
+
     @InjectMocks
-    DecoratorQueueService mockDecoratorQueueService;
+    DecoratorQueueService decoratorQueueService;
 
     @BeforeEach
     public void createSource() {
@@ -80,38 +83,34 @@ class DecoratorQueueServiceTest {
 
         testArray = new byte[]{1, 2, 3};
         result = false;
-        destination = "testDestination";
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)
     void saveWhenContentTypeEqualsAudioOrMpeg() {
         when(sourceService.save(mockMultipartFile, mockSong, mockSong.getId())).thenReturn(source2);
         source2.setFileType("audio/mpeg");
-        mockDecoratorQueueService.save(mockMultipartFile, mockSong, mockSong.getId());
+        decoratorQueueService.save(mockMultipartFile, mockSong, mockSong.getId());
         verify(sourceService, times(1)).save(mockMultipartFile, mockSong, mockSong.getId());
-        verify(jmsTemplate, times(0)).convertAndSend(destination, source1);
+        verify(jmsTemplate, never()).convertAndSend(destination, source1);
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)
-        //TODO NULLPOInter jmsTemplate, how to properly mock jmsTemplate
     void saveWhenContentTypeNotAudioOrMpeg() {
         when(sourceService.save(mockMultipartFile, mockSong, mockSong.getId())).thenReturn(source1);
         source1.setFileType("notAudioOrMpeg");
-        doNothing().when(jmsTemplate).convertAndSend(queue, mockSource);
+        ReflectionTestUtils.setField(decoratorQueueService, "queue", queue);
+        ReflectionTestUtils.setField(decoratorQueueService, "jmsTemplate", jmsTemplate);
+        doNothing().when(jmsTemplate).convertAndSend(queue, source1);
 
-        mockDecoratorQueueService.save(mockMultipartFile, mockSong, mockSource.getId());
-
-        verify(jmsTemplate, times(1)).convertAndSend(queue, mockSource);
+        decoratorQueueService.save(mockMultipartFile, mockSong, mockSource.getId());
+        verify(jmsTemplate, times(1)).convertAndSend(queue, source1);
     }
 
     @Test
     void findByName() throws IOException {
-
         when(sourceService.findByName(anyString(), anyString(), anyString())).thenReturn(testArray);
         assertEquals(testArray.length, 3);
-        mockDecoratorQueueService.findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
+        decoratorQueueService.findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
         verify(sourceService, times(1))
                 .findByName(source1.getName(), source1.getStorage_types(), source1.getStorage_types());
     }
@@ -120,14 +119,14 @@ class DecoratorQueueServiceTest {
     void isExist() {
         when(sourceService.isExist(anyLong())).thenReturn(result = true);
         assertThat(result).isEqualTo(true);
-        mockDecoratorQueueService.isExist(source1.getId());
+        decoratorQueueService.isExist(source1.getId());
         verify(sourceService, times(1)).isExist(source1.getId());
     }
 
     @Test
     void delete() {
         when(sourceService.delete(anyString())).thenReturn(true);
-        assertEquals(mockDecoratorQueueService.delete(source1.getName()), true);
+        assertEquals(decoratorQueueService.delete(source1.getName()), true);
         verify(sourceService, times(1)).delete(source1.getName());
     }
 }
