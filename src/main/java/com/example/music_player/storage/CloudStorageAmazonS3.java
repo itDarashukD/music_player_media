@@ -29,46 +29,50 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Autowired
     private AmazonS3 s3Client;
     private File tempFile;
-    private File fileObject;
 
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        fileObject = putInputStreamToFile(inputStream);
-        boolean found = s3Client.doesBucketExistV2(bucketName);
-
-        if (!found) {
-            log.info("IN save() :Bucket " + bucketName + " start creating.");
-            s3Client.createBucket(bucketName);
-        } else {
-            log.info("IN save() :Bucket " + bucketName + "  already exists.");
+        List<Source> sourceList = null;
+        try {
+            putInputStreamToFile(inputStream);
+            if (!s3Client.doesBucketExistV2(bucketName)) {
+                log.info("IN save() :Bucket " + bucketName + " start creating.");
+                s3Client.createBucket(bucketName);
+            } else {
+                log.info("IN save() :Bucket " + bucketName + "  already exists.");
+            }
+            s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, tempFile));
+            sourceList = createSource(originalFilename, contentType);
+        } catch (Exception e) {
+            System.out.println("someException " +e.getMessage());
+        } finally {
+            tempFile.delete();
+            tempFile.deleteOnExit();
+            log.info("IN CloudStorageAmazonS3 save() : " + tempFile.getName() + " was deleted");
         }
-
-        s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, fileObject));
-        return createSource(originalFilename, contentType);
+        return sourceList;
     }
 
     private List<Source> createSource(String originalFilename, String contentType) {
         Source source = new Source(originalFilename
                 , pathCloudStorage
-                , fileObject.length()
-                , DigestUtils.md5Hex(originalFilename)//TODO to not read input stream twice
+                , tempFile.length()
+                , DigestUtils.md5Hex(originalFilename)
                 , contentType);
-
         source.setStorage_types("CLOUD_STORAGE");
         source.setStorage_id(2L);
-        fileObject.delete();
-        tempFile.deleteOnExit();
         return Collections.singletonList(source);
     }
 
-    private File putInputStreamToFile(InputStream inputStream) {
+    private void putInputStreamToFile(InputStream inputStream) {
         try {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
+            log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created");
+            System.out.println(tempFile.length() + "11111111111111111111111111111111111");
         } catch (IOException e) {
-            log.info("IN putInputStreamToFile() :" + e.getMessage());
+            log.error("IN putInputStreamToFile() :" + e.getMessage());
         }
-        return tempFile;
     }
 
     @Override
