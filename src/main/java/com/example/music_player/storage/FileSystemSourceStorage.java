@@ -1,6 +1,7 @@
 package com.example.music_player.storage;
 
 import com.example.music_player.entity.Source;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,29 +24,31 @@ public class FileSystemSourceStorage implements IStorageSourceService {
 
     @Value("${path.local.storage}")
     private String pathLocalStorage;
-    private Path path;
+
+
 
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        path = Paths.get(pathLocalStorage, originalFilename);
+        Path path = Paths.get(pathLocalStorage, originalFilename);
         if (!Files.exists(path)) {
             log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
+                log.info("IN FileSystemSourceStorage save() : coping file begin...");
                 Files.copy(inputStream
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                log.error("IN FileSystemSourceStorage save() :" + e.getMessage());
+                log.error("ERROR IN FileSystemSourceStorage save() :" + e.getMessage());
             }
-        } else log.info("File is exist now in this directory!" + pathLocalStorage + "/" + originalFilename);
-        return createSource(originalFilename, contentType);
+        } else
+            log.info("File is exist now in this directory : " + pathLocalStorage + originalFilename);
+        return createSource(originalFilename, contentType, path);
     }
 
-    private List<Source> createSource(String originalFilename, String contentType) {
-        File file = new File(String.valueOf(path));
+    private List<Source> createSource(String originalFilename, String contentType, Path path) {
         Source source = new Source(originalFilename
                 , pathLocalStorage
-                , file.length()
+                , path.toFile().length()
                 , DigestUtils.md5Hex(originalFilename)
                 , contentType);
 
@@ -57,7 +60,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @Override
     public InputStream findSongBySource(Source source) throws IOException {
         Path path = Paths.get(source.getPath(), source.getName());
-        final InputStream inputStream = new FileSystemResource(path).getInputStream();
+        InputStream inputStream =  new FileSystemResource(path).getInputStream();
         return inputStream;
     }
 
@@ -65,15 +68,17 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     public boolean isExist(Source source) {
         String sourceFilePath = source.getPath();
         String sourceFileName = source.getName();
-        return Files.exists(Paths.get(sourceFilePath, sourceFileName));
+        final Path path = Paths.get(sourceFilePath, sourceFileName);
+        return Files.exists(path);
     }
 
     @Override
     public void delete(Source source) {
         String sourceFilename = source.getName();
         String sourceFilePath = source.getPath();
+        Path path = Paths.get(sourceFilePath, sourceFilename);
         try {
-            Files.delete(Paths.get(sourceFilePath, sourceFilename));
+            Files.deleteIfExists(path);
         } catch (IOException e) {
             log.error("IN FileSystemSourceStorage delete() :" + e.getMessage());
         }

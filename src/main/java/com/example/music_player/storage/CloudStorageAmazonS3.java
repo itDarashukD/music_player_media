@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,13 +29,15 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
 
     @Autowired
     private AmazonS3 s3Client;
-    private File tempFile;
 
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         List<Source> sourceList = null;
+        File tempFile = putInputStreamToFile(inputStream);
+        if (tempFile == null) {
+            log.info("IN save() : We got a problem : tempFile == null !");
+        }
         try {
-            putInputStreamToFile(inputStream);
             if (!s3Client.doesBucketExistV2(bucketName)) {
                 log.info("IN save() :Bucket " + bucketName + " start creating.");
                 s3Client.createBucket(bucketName);
@@ -42,18 +45,26 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
                 log.info("IN save() :Bucket " + bucketName + "  already exists.");
             }
             s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, tempFile));
-            sourceList = createSource(originalFilename, contentType);
+            sourceList = createSource(originalFilename, contentType, tempFile);
         } catch (Exception e) {
-            System.out.println("someException " +e.getMessage());
+            System.out.println("someException " + e.getMessage());
         } finally {
-            tempFile.delete();
-            tempFile.deleteOnExit();
-            log.info("IN CloudStorageAmazonS3 save() : " + tempFile.getName() + " was deleted");
+            deletedTempFile(tempFile);
         }
         return sourceList;
     }
 
-    private List<Source> createSource(String originalFilename, String contentType) {
+    private void deletedTempFile(File tempFile) {
+        try {
+            Files.deleteIfExists(tempFile.toPath());
+            log.info("IN CloudStorageAmazonS3 save() : " + tempFile.getName() + " was deleted");
+        } catch (IOException e) {
+            log.error("IN CloudStorageAmazonS3 deletedTempFile() : "
+                    + tempFile.getName() + " not deleted because : " + e.getMessage());
+        }
+    }
+
+    private List<Source> createSource(String originalFilename, String contentType, File tempFile) {
         Source source = new Source(originalFilename
                 , pathCloudStorage
                 , tempFile.length()
@@ -64,15 +75,16 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         return Collections.singletonList(source);
     }
 
-    private void putInputStreamToFile(InputStream inputStream) {
+    private File putInputStreamToFile(InputStream inputStream) {
+        File tempFile = null;
         try {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
             log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created");
-            System.out.println(tempFile.length() + "11111111111111111111111111111111111");
         } catch (IOException e) {
             log.error("IN putInputStreamToFile() :" + e.getMessage());
         }
+        return tempFile;
     }
 
     @Override
