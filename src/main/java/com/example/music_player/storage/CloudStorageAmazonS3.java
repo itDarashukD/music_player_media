@@ -4,16 +4,16 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.example.music_player.entity.Source;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
@@ -30,12 +30,13 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Autowired
     private AmazonS3 s3Client;
 
+//    @SneakyThrows(IOException.class)
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         List<Source> sourceList = null;
         File tempFile = putInputStreamToFile(inputStream);
         if (tempFile == null) {
-            log.info("IN save() : We got a problem : tempFile == null !");
+            log.error("ERROR IN save() : We got a problem : tempFile == null !");
         }
         try {
             if (!s3Client.doesBucketExistV2(bucketName)) {
@@ -82,8 +83,10 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
             log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created");
         } catch (IOException e) {
-            log.error("IN putInputStreamToFile() :" + e.getMessage());
-        }
+            log.error("ERROR IN putInputStreamToFile() :" + e.getMessage());
+            throw new UncheckedIOException("Can't create a tempFile or write to him inputStream" +e.getMessage()
+                    , new FileNotFoundException());
+            }
         return tempFile;
     }
 

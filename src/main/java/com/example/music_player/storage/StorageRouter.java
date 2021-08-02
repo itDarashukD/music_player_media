@@ -37,7 +37,8 @@ public class StorageRouter implements IStorageSourceService {
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
         for (Entry<String, IStorageSourceService> pair : storagesMap.entrySet()) {
-            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
+
+            Source source  = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
         return sourceList;
@@ -74,7 +75,7 @@ public class StorageRouter implements IStorageSourceService {
         try {
             InputStreamFromFile = new FileInputStream(putInputStreamToFile);
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            log.error("Exception IN : putInputStreamToFile()" + e.getMessage());
         }
         return InputStreamFromFile;
     }

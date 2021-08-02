@@ -59,7 +59,6 @@ public class CloudStorageAmazonS3Test {
                 , "checksum", "storageTypes", "fileType");
         s3Object = mock(S3Object.class);
         s3InputStream = mock(S3ObjectInputStream.class);
-        cloudStorageAmazonS3 = new CloudStorageAmazonS3();
         tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
         sourceList = Collections.singletonList(source);
         FileUtils.copyInputStreamToFile(inputStream, tempFile);
