@@ -5,6 +5,7 @@ import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,8 +40,9 @@ public class SourceService implements ISourceService {
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
 
-            if (!sourceRepository.isExistByNameAndFileType(song.getName(), contentType)) {
-                sourceList = storageSourceService.save(inputStream, fileName, contentType);
+//          if (!sourceRepository.isExistByNameAndFileType(song.getName(), contentType)) {
+            if (!sourceRepository.isExistByChecksum(DigestUtils.md5Hex(inputStream))) {
+                sourceList = storageSourceService.save(multipartFile.getInputStream(), fileName, contentType);
                 sourceList.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
                     sourceRepository.save(x);

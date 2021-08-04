@@ -27,8 +27,9 @@ public class StorageRouter implements IStorageSourceService {
     public StorageRouter(List<IStorageSourceService> storageSourceList) {
         this.storageSourceList = storageSourceList;
 
-        for (IStorageSourceService storage : storageSourceList)
-        {storagesMap.put(storage.getTypeStorage(), storage); }
+        for (IStorageSourceService storage : storageSourceList) {
+            storagesMap.put(storage.getTypeStorage(), storage);
+        }
     }
 
     @Override
@@ -37,11 +38,24 @@ public class StorageRouter implements IStorageSourceService {
         File fileWithInputStream = putInputStreamToFile(inputStream);
 
         for (Entry<String, IStorageSourceService> pair : storagesMap.entrySet()) {
-
-            Source source  = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
+            Source source = pair.getValue().save(getInputStreamFromFile(fileWithInputStream), filename, contentType).get(0);
             sourceList.add(source);
         }
+        closeInputStream(inputStream);
+        deleteTempFile(fileWithInputStream);
         return sourceList;
+    }
+
+    private void deleteTempFile(File fileWithInputStream) {
+        fileWithInputStream.deleteOnExit();
+    }
+
+    private void closeInputStream(InputStream inputStream) {
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            log.error("Exception IN : closeInputStream()" + e.getMessage());
+        }
     }
 
     @Override
@@ -81,8 +95,8 @@ public class StorageRouter implements IStorageSourceService {
     }
 
     @Override
-    public String  getTypeStorage() {
-        return  "STORAGE_ROUTER";
+    public String getTypeStorage() {
+        return "STORAGE_ROUTER";
     }
 }
 

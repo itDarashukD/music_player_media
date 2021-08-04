@@ -14,10 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,7 +71,7 @@ public class CloudStorageAmazonS3Test {
     }
 
     @Test
-    public void saveWhenBucketNotExist() throws IOException {//TODO temporary file should be deleted in positive scenarios too
+    public void saveWhenBucketNotExist() {
         when(s3Client.doesBucketExistV2(bucketName)).thenReturn(false);
         when(s3Client.createBucket(bucketName)).thenReturn(bucket);
         when(s3Client.putObject(any())).thenReturn(putObjectResult);
@@ -86,7 +83,7 @@ public class CloudStorageAmazonS3Test {
     }
 
     @Test
-    public void saveWhenBucketExistNow() {//TODO temporary file should be deleted in positive scenarios too
+    public void saveWhenBucketExistNow() {
         when(s3Client.doesBucketExistV2(bucketName)).thenReturn(true);
         when(s3Client.putObject(any())).thenReturn(putObjectResult);
 
@@ -96,8 +93,27 @@ public class CloudStorageAmazonS3Test {
         verify(s3Client, times(1)).putObject(any(PutObjectRequest.class));
     }
 
+//    @Test
+//    public void whenPutInputStreamToFileThrowException() {
+//
+//        try (MockedStatic<FileUtils> utilities = Mockito.mockStatic(FileUtils.class)) {
+//            utilities.when(() -> FileUtils.copyInputStreamToFile(any(InputStream.class), any(File.class)))
+//                    .thenThrow(new IOException("copy InputStream to file exception"));
+//
+//            cloudStorageAmazonS3.save(inputStream, "originalFilename", "contentType");
+//
+//            Exception exception = assertThrows(IOException.class, () ->
+//                    FileUtils.copyInputStreamToFile(inputStream, tempFile)
+//            );
+//            String expectedMessage = "file exception";
+//            String actualMessage = exception.getMessage();
+//            assertTrue(actualMessage.contains(expectedMessage));
+//        }
+//    }
+
+
     @Test
-    public void isTempFileDeletedWhenThrowException() throws IOException { //TODO  verify that delete() method is invoked at least once with PowerMockito.
+    public void isTempFileDeletedWhenThrowException() throws IOException {
         when(s3Client.putObject(any())).thenThrow(new RuntimeException());
 
         try (MockedStatic<Collections> utilities2 = Mockito.mockStatic(Collections.class)) {
@@ -121,7 +137,7 @@ public class CloudStorageAmazonS3Test {
             cloudStorageAmazonS3.save(inputStream, "originalFilename", "contentType");
 
             Exception exception = assertThrows(IOException.class, () ->
-                Files.deleteIfExists(tempFile.toPath())
+                    Files.deleteIfExists(tempFile.toPath())
             );
             String expectedMessage = "not exist";
             String actualMessage = exception.getMessage();
@@ -148,15 +164,15 @@ public class CloudStorageAmazonS3Test {
 
     @Test
     public void isExistWhensS3ObjectNotNull() {
-        when(s3Client.getObject(bucketName, source.getName())).thenReturn(s3Object);
+        when(s3Client.doesObjectExist(bucketName, source.getName())).thenReturn(true);
         assertEquals(cloudStorageAmazonS3.isExist(source), true);
-        verify(s3Client, times(1)).getObject(bucketName, source.getName());
+        verify(s3Client, times(1)).doesObjectExist(bucketName, source.getName());
     }
 
     @Test
     public void isExistWhensS3ObjectIsNull() {
-        when(s3Client.getObject(bucketName, source.getName())).thenReturn(null);
+        when(s3Client.doesObjectExist(bucketName, source.getName())).thenReturn(false);
         assertEquals(cloudStorageAmazonS3.isExist(source), false);
-        verify(s3Client, times(1)).getObject(bucketName, source.getName());
+        verify(s3Client, times(1)).doesObjectExist(bucketName, source.getName());
     }
 }

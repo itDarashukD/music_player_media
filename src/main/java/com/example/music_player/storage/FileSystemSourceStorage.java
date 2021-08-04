@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -25,16 +26,16 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @Value("${path.local.storage}")
     private String pathLocalStorage;
 
-
-
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
+        final ByteArrayOutputStream byteArray = copingInputStreamToArray(inputStream);
+
         Path path = Paths.get(pathLocalStorage, originalFilename);
         if (!Files.exists(path)) {
             log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
                 log.info("IN FileSystemSourceStorage save() : coping file begin...");
-                Files.copy(inputStream
+                Files.copy(getCloneInputStream(byteArray)
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -42,14 +43,30 @@ public class FileSystemSourceStorage implements IStorageSourceService {
             }
         } else
             log.info("File is exist now in this directory : " + pathLocalStorage + originalFilename);
-        return createSource(originalFilename, contentType, path);
+        return createSource(originalFilename, contentType, path, getCloneInputStream(byteArray));
     }
 
-    private List<Source> createSource(String originalFilename, String contentType, Path path) {
+    private ByteArrayOutputStream copingInputStreamToArray(InputStream inputStream) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            inputStream.transferTo(baos);
+        } catch (IOException e) {
+            log.info("IN FileSystemSourceStorage copingInputStreamToArray() : coping inputstram to array...");
+        }
+        return baos;
+    }
+
+    private InputStream getCloneInputStream(ByteArrayOutputStream baos) {
+        log.info(" IN FileSystemSourceStorage getCloneInputStream() : cloning begin");
+        return new ByteArrayInputStream(baos.toByteArray());
+    }
+
+    @SneakyThrows
+    private List<Source> createSource(String originalFilename, String contentType, Path path, InputStream inputStream) {
         Source source = new Source(originalFilename
                 , pathLocalStorage
                 , path.toFile().length()
-                , DigestUtils.md5Hex(originalFilename)
+                , DigestUtils.md5Hex(inputStream)
                 , contentType);
 
         source.setStorage_types("FILE_SYSTEM");
@@ -60,12 +77,14 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @Override
     public InputStream findSongBySource(Source source) throws IOException {
         Path path = Paths.get(source.getPath(), source.getName());
-        InputStream inputStream =  new FileSystemResource(path).getInputStream();
+        InputStream inputStream = new FileSystemResource(path).getInputStream();
         return inputStream;
     }
 
     @Override
     public boolean isExist(Source source) {
+        log.info("FileSystemSourceStorage isExist : method begining");
+
         String sourceFilePath = source.getPath();
         String sourceFileName = source.getName();
         final Path path = Paths.get(sourceFilePath, sourceFileName);
