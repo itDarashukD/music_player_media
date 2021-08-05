@@ -58,7 +58,6 @@ class SongServiceTest {
 
     @Test
     void addSong() {
-        doNothing().when(songRepository).save(any());
         songService.addSong(song1);
         verify(songRepository, times(1)).save(any());
     }
@@ -85,7 +84,6 @@ class SongServiceTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void deleteSongByName() {
-        doNothing().when(songRepository).deleteByName(song1.getName());
         songService.deleteSongByName(song1.getName());
         verify(songRepository, times(1)).deleteByName(song1.getName());
     }

@@ -37,4 +37,9 @@ public interface ISourceRepository {
     @Select("SELECT EXISTS(SELECT * FROM Source WHERE name = #{name} and file_type = #{file_type})")
     Boolean isExistByNameAndFileType(@Param("name") String name,
                           @Param("file_type") String file_type);
+
+    @Select("SELECT EXISTS(SELECT * FROM Source WHERE checksum = #{checksum} )")
+    Boolean isExistByChecksum(@Param("checksum") String checksum);
+
+
 }
