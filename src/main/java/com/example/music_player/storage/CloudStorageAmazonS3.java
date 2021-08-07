@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
-@Service
+//@Service
 @Slf4j
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -28,7 +28,6 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
 
     @Autowired
     private AmazonS3 s3Client;
-
 
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
