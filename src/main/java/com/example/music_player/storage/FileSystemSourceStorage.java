@@ -26,16 +26,19 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @Value("${path.local.storage}")
     private String pathLocalStorage;
 
+    @SneakyThrows
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
         final ByteArrayOutputStream byteArray = copingInputStreamToArray(inputStream);
+ //       final String checksum = getChecksum(inputStream);
 
         Path path = Paths.get(pathLocalStorage, originalFilename);
         if (!Files.exists(path)) {
             log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
                 log.info("IN FileSystemSourceStorage save() : coping file begin...");
-                Files.copy(getCloneInputStream(byteArray)
+               Files.copy(getCloneInputStream(byteArray)
+//                Files.copy(inputStream
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -45,6 +48,7 @@ public class FileSystemSourceStorage implements IStorageSourceService {
             log.info("File is exist now in this directory : " + pathLocalStorage + originalFilename);
         return createSource(originalFilename, contentType, path, getCloneInputStream(byteArray));
     }
+
 
     private ByteArrayOutputStream copingInputStreamToArray(InputStream inputStream) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -62,11 +66,12 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     }
 
     @SneakyThrows
-    private List<Source> createSource(String originalFilename, String contentType, Path path, InputStream inputStream) {
+    private List<Source> createSource(String originalFilename, String contentType, Path path,InputStream inputStream) {
         Source source = new Source(originalFilename
                 , pathLocalStorage
                 , path.toFile().length()
                 , DigestUtils.md5Hex(inputStream)
+                //               , checksum
                 , contentType);
 
         source.setStorage_types("FILE_SYSTEM");
