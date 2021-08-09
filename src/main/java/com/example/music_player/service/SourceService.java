@@ -40,11 +40,6 @@ public class SourceService implements ISourceService {
             InputStream inputStream = multipartFile.getInputStream();
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
-//          if (!sourceRepository.isExistByNameAndFileType(song.getName(), contentType)) {
-            //           final String checksum = getChecksum(inputStream);
-            //          if (!sourceRepository.isExistByChecksum(checksum)) {// не имеет особого смысла, сдесь получать чексумму
-            //и передавать ее в метод save() четвертым аргументом, при этом  IStorageSourceService - библитека(приднтся переделывать),
-            // да и получить чексумму можно не писав метода getChecksum(), а по старинке - DigestUtils.md5Hex(inputStream)
 
             if (!sourceRepository.isExistByChecksum(DigestUtils.md5Hex(inputStream))) {
                 sourceList = storageSourceService.save(multipartFile.getInputStream(), fileName, contentType);
@@ -54,26 +49,13 @@ public class SourceService implements ISourceService {
                     log.info("file " + x.getName() + " save in source repository");
                 });
             } else {
-                log.info("file " + song.getName() + "with this checksum  is exist at this moment in DB ");
+                log.info("file " + song.getName() + " with this checksum  is exist at this moment in DB ");
             }
         } catch (IOException e) {
             log.error("EXCEPTION IN: SourceService save()" + e.getMessage());
         }
         return sourceList.stream().findAny().orElseThrow(() -> new IllegalStateException("source do not fined"));
     }
-
-//    String  getChecksum (InputStream inputStream) throws NoSuchAlgorithmException, IOException {
-//        StringBuilder checksumSb = new StringBuilder();
-//        MessageDigest md = MessageDigest.getInstance("MD5");
-//        DigestInputStream dis = new DigestInputStream(inputStream, md);
-//
-//        while (dis.read() != -1) ;
-//        final byte[] digestMD5 = md.digest();
-//        for (byte digestByte : digestMD5) {
-//            checksumSb.append(String.format("%02x", digestByte));
-//        }
-//        return checksumSb.toString();
-//    }
 
     public byte[] findByName(String name, String storage_type, String file_type) throws IOException {
         Source source = Optional.ofNullable(sourceRepository.findByNameAndStorageType(name, storage_type, file_type))

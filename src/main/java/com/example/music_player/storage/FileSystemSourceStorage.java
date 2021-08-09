@@ -3,19 +3,19 @@ package com.example.music_player.storage;
 import com.example.music_player.entity.Source;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,49 +29,56 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @SneakyThrows
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        final ByteArrayOutputStream byteArray = copingInputStreamToArray(inputStream);
- //       final String checksum = getChecksum(inputStream);
-
+        DigestInputStream digestIS = getDigestIS(inputStream);
         Path path = Paths.get(pathLocalStorage, originalFilename);
+
         if (!Files.exists(path)) {
             log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
                 log.info("IN FileSystemSourceStorage save() : coping file begin...");
-               Files.copy(getCloneInputStream(byteArray)
-//                Files.copy(inputStream
+                Files.copy(digestIS
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 log.error("ERROR IN FileSystemSourceStorage save() :" + e.getMessage());
             }
-        } else
+        } else {
             log.info("File is exist now in this directory : " + pathLocalStorage + originalFilename);
-        return createSource(originalFilename, contentType, path, getCloneInputStream(byteArray));
-    }
-
-
-    private ByteArrayOutputStream copingInputStreamToArray(InputStream inputStream) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            inputStream.transferTo(baos);
-        } catch (IOException e) {
-            log.info("IN FileSystemSourceStorage copingInputStreamToArray() : coping inputstram to array...");
         }
-        return baos;
+        return createSource(originalFilename, contentType, path, getChecksum(digestIS));
     }
 
-    private InputStream getCloneInputStream(ByteArrayOutputStream baos) {
-        log.info(" IN FileSystemSourceStorage getCloneInputStream() : cloning begin");
-        return new ByteArrayInputStream(baos.toByteArray());
+    private String getChecksum(DigestInputStream digestIS) throws NoSuchAlgorithmException, IOException {
+        log.info("IN getChecksum save() : counting checksum file (DigestInputStream)...");
+        StringBuilder checksumSb = new StringBuilder();
+        final byte[] digestMD5 = digestIS.getMessageDigest().digest();
+        for (byte digestByte : digestMD5) {
+            checksumSb.append(String.format("%02x", digestByte));
+        }
+        return checksumSb.toString();
     }
 
+    private DigestInputStream getDigestIS(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+        log.info("IN getDigestIS save() : creating DigestInputStream...");
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        DigestInputStream dis = new DigestInputStream(inputStream, md);
+        return dis;
+    }
+//    private long getCountBytes(DigestInputStream dis) throws IOException {
+//        log.info("IN getCountBytes save() : counting size file with  (CountingInputStream)...");
+//        CountingInputStream cis = new CountingInputStream(dis);
+//        long bytes = 0;
+//        while (cis.read() != -1) {
+//            bytes = cis.getByteCount();
+//        }
+//        return bytes;
+//    }
     @SneakyThrows
-    private List<Source> createSource(String originalFilename, String contentType, Path path,InputStream inputStream) {
+    private List<Source> createSource(String originalFilename, String contentType, Path path, String checksum) {
         Source source = new Source(originalFilename
                 , pathLocalStorage
                 , path.toFile().length()
-                , DigestUtils.md5Hex(inputStream)
-                //               , checksum
+                , checksum
                 , contentType);
 
         source.setStorage_types("FILE_SYSTEM");

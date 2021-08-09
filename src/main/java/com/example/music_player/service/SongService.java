@@ -31,7 +31,8 @@ public class SongService implements ISongService {
     }
 
     public Long addSong(Song song) {
-        if (!songRepository.isExistByName(song.getName())) {
+//        if (!songRepository.isExistByName(song.getName())) {
+        if (!songRepository.isExistByNameOrNotes(song.getName(), song.getNotes())) {
             songRepository.save(song);
         } else {
             throw new IllegalStateException("file " + song.getName() + " exist in DB in this moment, please upload another file!");

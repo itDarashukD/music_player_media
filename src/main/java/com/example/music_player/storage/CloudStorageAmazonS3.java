@@ -3,21 +3,27 @@ package com.example.music_player.storage;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.util.CountingInputStream;
 import com.example.music_player.entity.Source;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
-//@Service
+@Service
 @Slf4j
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -29,16 +35,18 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Autowired
     private AmazonS3 s3Client;
 
+    @SneakyThrows
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        final ByteArrayOutputStream byteArray = copingInputStreamToArray(inputStream);
         List<Source> sourceList = null;
+        DigestInputStream digestIS = getDigestIS(inputStream);
+        File tempFile = putInputStreamToFile(digestIS);
 
-        File tempFile = putInputStreamToFile(getCloneInputStream(byteArray));
         if (tempFile == null) {
             log.error("ERROR IN save() : We got a problem : tempFile == null !");
         }
         try {
+            final String checksum = getChecksum(digestIS);
             if (!s3Client.doesBucketExistV2(bucketName)) {
                 log.info("IN save() :Bucket " + bucketName + " start creating.");
                 s3Client.createBucket(bucketName);
@@ -46,7 +54,7 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
                 log.info("IN save() :Bucket " + bucketName + "  already exists.");
             }
             s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, tempFile));
-            sourceList = createSource(originalFilename, contentType, tempFile, getCloneInputStream(byteArray));
+            sourceList = createSource(originalFilename, contentType, tempFile,checksum );
         } catch (Exception e) {
             log.error("ERROR IN save() : We got a problem :" + e.getMessage());
         } finally {
@@ -55,19 +63,21 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         return sourceList;
     }
 
-    private ByteArrayOutputStream copingInputStreamToArray(InputStream inputStream) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            inputStream.transferTo(baos);
-        } catch (IOException e) {
-            log.info("IN FileSystemSourceStorage copingInputStreamToArray() : coping inputStream to array...");
-        }
-        return baos;
+    private DigestInputStream getDigestIS(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+        log.info("IN getDigestIS save() : creating DigestInputStream...");
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        DigestInputStream dis = new DigestInputStream(inputStream, md);
+        return dis;
     }
 
-    private InputStream getCloneInputStream(ByteArrayOutputStream baos) {
-        log.info(" IN FileSystemSourceStorage getCloneInputStream() : cloning begin");
-        return new ByteArrayInputStream(baos.toByteArray());
+    private String getChecksum(DigestInputStream digestIS) {
+        log.info("IN getChecksum save() : counting checksum file (DigestInputStream)...");
+        StringBuilder checksumSb = new StringBuilder();
+        final byte[] digestMD5 = digestIS.getMessageDigest().digest();
+        for (byte digestByte : digestMD5) {
+            checksumSb.append(String.format("%02x", digestByte));
+        }
+        return checksumSb.toString();
     }
 
     private void deletedTempFile(File tempFile) {
@@ -81,23 +91,24 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     }
 
     @SneakyThrows
-    private List<Source> createSource(String originalFilename, String contentType, File tempFile, InputStream inputStream) {
+    private List<Source> createSource(String originalFilename, String contentType, File tempFile, String checksum) {
         Source source = new Source(originalFilename
                 , pathCloudStorage
                 , tempFile.length()
-                , DigestUtils.md5Hex(inputStream)
+                , checksum
                 , contentType);
         source.setStorage_types("CLOUD_STORAGE");
         source.setStorage_id(2L);
         return Collections.singletonList(source);
     }
 
-    private File putInputStreamToFile(InputStream inputStream) {
+    private File putInputStreamToFile(DigestInputStream digestInputStream) {
         File tempFile;
         try {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
-            FileUtils.copyInputStreamToFile(inputStream, tempFile);
-            log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created ");
+            FileUtils.copyInputStreamToFile(digestInputStream, tempFile);
+
+            log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created ,bytes length = " + tempFile.length());
         } catch (IOException e) {
             log.error("ERROR IN putInputStreamToFile() :" + e.getMessage());
             throw new UncheckedIOException(" Can't create a tempFile or write inputStream to him !" + e.getMessage()
