@@ -36,15 +36,16 @@ public class SourceService implements ISourceService {
     @Transactional
     public Source save(MultipartFile multipartFile, Song song, Long songIdFromDB) {
         List<Source> sourceList = new ArrayList<>();
-        try {
-            InputStream inputStream = multipartFile.getInputStream();
+        try(InputStream inputStream = multipartFile.getInputStream();) {
             String fileName = multipartFile.getOriginalFilename();
             String contentType = multipartFile.getContentType();
+            String checkSum = DigestUtils.md5Hex(inputStream);
 
-            if (!sourceRepository.isExistByChecksum(DigestUtils.md5Hex(inputStream))) {
+            if (!sourceRepository.isExistByChecksum(checkSum)) {
                 sourceList = storageSourceService.save(multipartFile.getInputStream(), fileName, contentType);
                 sourceList.forEach((x) -> {
                     x.setSong_id(songIdFromDB);
+                    x.setChecksum(checkSum);
                     sourceRepository.save(x);
                     log.info("file " + x.getName() + " save in source repository");
                 });

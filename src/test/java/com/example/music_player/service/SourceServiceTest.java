@@ -4,14 +4,12 @@ import com.example.music_player.entity.Song;
 import com.example.music_player.entity.Source;
 import com.example.music_player.repository.ISourceRepository;
 import com.example.music_player.storage.IStorageSourceService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,44 +66,51 @@ class SourceServiceTest {
     @Test
     void saveWhenSourceDoNotExist() throws IOException {
 
-        when(sourceRepository.isExistByNameAndFileType(song.getName()
-                , mockMultipartFile.getContentType()))
-                .thenReturn(false);
-        when(storageSourceService.save(
-                mockMultipartFile.getInputStream()
-                , mockMultipartFile.getName()
-                , mockMultipartFile.getContentType()))
-                .thenReturn(sourceList);
+        try (MockedStatic<DigestUtils> utilities = Mockito.mockStatic(DigestUtils.class)) {
+            utilities.when(() -> DigestUtils.md5Hex(inputStream))
+                    .thenReturn("checkSum");
+            when(sourceRepository.isExistByChecksum(any()))
+                    .thenReturn(false);
+            when(storageSourceService.save(
+                    mockMultipartFile.getInputStream()
+                    , mockMultipartFile.getName()
+                    , mockMultipartFile.getContentType()))
+                    .thenReturn(sourceList);
 
-        sourceService.save(mockMultipartFile, song, song.getId());
+            sourceService.save(mockMultipartFile, song, song.getId());
 
-        verify(sourceRepository, times(2)).save(sourceArgumentCaptor.capture());
-        List<Source> captorSource = sourceArgumentCaptor.getAllValues();
-        assertEquals(source1.getSong_id(), captorSource.get(0).getSong_id());
-        assertEquals(source2.getSong_id(), captorSource.get(1).getSong_id());
-        verify(storageSourceService, times(1))
-                .save(mockMultipartFile.getInputStream()
-                        , mockMultipartFile.getName()
-                        , mockMultipartFile.getContentType());
-        verify(sourceRepository, times(1)).save(source1);
+            verify(sourceRepository, times(2)).save(sourceArgumentCaptor.capture());
+            List<Source> captorSource = sourceArgumentCaptor.getAllValues();
+            assertEquals(source1.getSong_id(), captorSource.get(0).getSong_id());
+            assertEquals(source2.getSong_id(), captorSource.get(1).getSong_id());
+            verify(storageSourceService, times(1))
+                    .save(mockMultipartFile.getInputStream()
+                            , mockMultipartFile.getName()
+                            , mockMultipartFile.getContentType());
+            verify(sourceRepository, times(1)).save(source1);
+        }
     }
 
     @Test
     void saveWhenSourceExist() throws IOException {//second branch of save() method
-        lenient().when(sourceRepository.isExistByNameAndFileType(song.getName()
-                , mockMultipartFile.getContentType()))
-                .thenReturn(true);
+        try (MockedStatic<DigestUtils> utilities = Mockito.mockStatic(DigestUtils.class)) {
+            utilities.when(() -> DigestUtils.md5Hex(any(InputStream.class)))
+                    .thenReturn("checkSum");
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
-                        sourceService.save(mockMultipartFile, song, song.getId()),
-                "source do not fined");
-        String expectedMessage = "do not fined";
-        Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
+            lenient().when(sourceRepository.isExistByChecksum(any()))
+                    .thenReturn(true);
 
-        verify(storageSourceService, never()).save(mockMultipartFile.getInputStream()
-                , mockMultipartFile.getName()
-                , mockMultipartFile.getContentType());
-        verify(sourceRepository, never()).save(source1);
+            IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                            sourceService.save(mockMultipartFile, song, song.getId()),
+                    "source do not fined");
+            String expectedMessage = "do not fined";
+            Assertions.assertTrue(exception.getMessage().contains(expectedMessage));
+
+            verify(storageSourceService, times(0)).save(mockMultipartFile.getInputStream()
+                    , mockMultipartFile.getName()
+                    , mockMultipartFile.getContentType());
+            verify(sourceRepository, never()).save(source1);
+        }
     }
 
     @Test

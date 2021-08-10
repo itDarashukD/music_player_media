@@ -29,14 +29,13 @@ public class FileSystemSourceStorage implements IStorageSourceService {
     @SneakyThrows
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        DigestInputStream digestIS = getDigestIS(inputStream);
         Path path = Paths.get(pathLocalStorage, originalFilename);
 
         if (!Files.exists(path)) {
             log.info("IN FileSystemSourceStorage save() : file not exist as yet");
             try {
                 log.info("IN FileSystemSourceStorage save() : coping file begin...");
-                Files.copy(digestIS
+                Files.copy(inputStream
                         , path
                         , StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -45,40 +44,15 @@ public class FileSystemSourceStorage implements IStorageSourceService {
         } else {
             log.info("File is exist now in this directory : " + pathLocalStorage + originalFilename);
         }
-        return createSource(originalFilename, contentType, path, getChecksum(digestIS));
+        return createSource(originalFilename, contentType, path );
     }
 
-    private String getChecksum(DigestInputStream digestIS) throws NoSuchAlgorithmException, IOException {
-        log.info("IN getChecksum save() : counting checksum file (DigestInputStream)...");
-        StringBuilder checksumSb = new StringBuilder();
-        final byte[] digestMD5 = digestIS.getMessageDigest().digest();
-        for (byte digestByte : digestMD5) {
-            checksumSb.append(String.format("%02x", digestByte));
-        }
-        return checksumSb.toString();
-    }
-
-    private DigestInputStream getDigestIS(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
-        log.info("IN getDigestIS save() : creating DigestInputStream...");
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        DigestInputStream dis = new DigestInputStream(inputStream, md);
-        return dis;
-    }
-//    private long getCountBytes(DigestInputStream dis) throws IOException {
-//        log.info("IN getCountBytes save() : counting size file with  (CountingInputStream)...");
-//        CountingInputStream cis = new CountingInputStream(dis);
-//        long bytes = 0;
-//        while (cis.read() != -1) {
-//            bytes = cis.getByteCount();
-//        }
-//        return bytes;
-//    }
     @SneakyThrows
-    private List<Source> createSource(String originalFilename, String contentType, Path path, String checksum) {
+    private List<Source> createSource(String originalFilename, String contentType, Path path ) {
         Source source = new Source(originalFilename
                 , pathLocalStorage
                 , path.toFile().length()
-                , checksum
+                , null
                 , contentType);
 
         source.setStorage_types("FILE_SYSTEM");

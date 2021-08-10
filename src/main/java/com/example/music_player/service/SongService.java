@@ -31,7 +31,6 @@ public class SongService implements ISongService {
     }
 
     public Long addSong(Song song) {
-//        if (!songRepository.isExistByName(song.getName())) {
         if (!songRepository.isExistByNameOrNotes(song.getName(), song.getNotes())) {
             songRepository.save(song);
         } else {
