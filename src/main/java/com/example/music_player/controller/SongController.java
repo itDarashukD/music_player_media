@@ -5,6 +5,7 @@ import com.example.music_player.service.ISongService;
 import com.example.music_player.service.ISourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,39 +26,53 @@ public class SongController {
         this.songService = songService;
     }
 
+    //test controller
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @GetMapping(value = "auth/greating")
+    public String greeting() {
+        return "greatings for you";
+    }
+
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping(value = "/")
     List<Song> getAll() {
         return songService.finedAllSongs();
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping(value = "/getSong/{song_id}")
     public Song findSongById(@PathVariable Long song_id) {
         return songService.findSongById(song_id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/add")
     public Long addSong(@RequestBody Song song) {
         return songService.addSong(song);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/update/{id}")
     public Long updateSong(@PathVariable("id") Long id,
                            @RequestBody Song song) {
         return songService.update(id, song);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/deleteSong/{song_id}")
     public Boolean deleteSong(@PathVariable Long song_id) {
         songService.deleteById(song_id);
         return true;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/deleteSongByName/{songName}")
-    public Boolean  deleteByName(@PathVariable String songName) {
+    public Boolean deleteByName(@PathVariable String songName) {
         songService.deleteSongByName(songName);
         return true;
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/upload")
     public String saveFile(
             @RequestParam("albumId") Long albumId,
@@ -73,11 +88,12 @@ public class SongController {
         return "Ok";
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/file/{name}")
     public ResponseEntity<byte[]> getFileBySourceName(@PathVariable String name
             , @RequestParam("storage_type") String storage_type
             , @RequestParam("file_type") String file_type) throws IOException {
-        byte[] content = decorator.findByName(name, storage_type, file_type);//Did addition file_type
+        byte[] content = decorator.findByName(name, storage_type, file_type);
         return ResponseEntity
                 .ok()
                 .contentLength(content.length)
@@ -86,11 +102,13 @@ public class SongController {
                 .body(content);
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/exist/{id}")
     boolean existBySourceId(@PathVariable Long id) {
         return decorator.isExist(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/delete/{name}")
     public Boolean deleteSourceBySongName(@PathVariable String name) {
         decorator.delete(name);

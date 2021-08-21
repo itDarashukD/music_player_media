@@ -61,7 +61,6 @@ class AlbumControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(EXPECTED_CONTENT));
-//        assertThat(1).isNotNull();
     }
 
     @Test

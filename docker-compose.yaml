@@ -1,0 +1,78 @@
+version: "3.7"
+services:
+  db:
+    image: mysql:8.0.25
+    container_name: mysql_name
+    ports:
+      - 3306:3306
+    volumes:
+      - app_data_volumes:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: music_player
+    restart: always
+
+  activemq:
+    image: webcenter/activemq
+    container_name: queue
+    ports:
+      - 8161:8161
+      - 61616:61616
+      - 61613:61613
+    environment:
+      BROKER_URL: tcp://localhost:61616
+      ACTIVEMQ_REMOVE_DEFAULT_ACCOUNT: 'True'
+      ACTIVEMQ_NAME: music_player_queue
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    volumes:
+      - ./docker_data/activemq/data:/activemq/data
+      - ./docker_data/activemq/log:/activemq/log
+    restart: always
+
+  app_activemq_converter:
+    image: itdarashukd/app_filetype_converter:latest
+    container_name: app_active_mq_converter
+    volumes:
+      - ./docker_data/app_active_mq_converter/data:/data/app_active_mq_converter
+      - ./docker_data/app_active_mq_converter/log:/var/log/app_active_mq_converter
+    restart: always
+    depends_on:
+      - activemq
+      - app-music-player
+
+  minio:
+    image: minio/minio
+    container_name: min_io_containar_name
+    volumes:
+      - ./docker_data/minio/data:/minio/data
+    ports:
+      - 9000:9000
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data
+
+  app-music-player:
+#    image: itdarashukd/application_media_player:latest
+    image:  itdarashukd/music_player_with_checksum:latest
+    container_name: music_player
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: curl --fail http://192.168.99.100:8080 || echo 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./docker_data/app_music_player/data:/app_music_player/data
+    depends_on:
+      - db
+      - activemq
+      - minio
+
+volumes:
+  app_data_volumes:
