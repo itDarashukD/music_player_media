@@ -6,18 +6,20 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.example.music_player.entity.Source;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
-//@Service
+@Service
 @Slf4j
 public class CloudStorageAmazonS3 implements IStorageSourceService {
 
@@ -29,12 +31,12 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     @Autowired
     private AmazonS3 s3Client;
 
+    @SneakyThrows
     @Override
     public List<Source> save(InputStream inputStream, String originalFilename, String contentType) {
-        final ByteArrayOutputStream byteArray = copingInputStreamToArray(inputStream);
         List<Source> sourceList = null;
+        File tempFile = putInputStreamToFile(inputStream);
 
-        File tempFile = putInputStreamToFile(getCloneInputStream(byteArray));
         if (tempFile == null) {
             log.error("ERROR IN save() : We got a problem : tempFile == null !");
         }
@@ -46,28 +48,13 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
                 log.info("IN save() :Bucket " + bucketName + "  already exists.");
             }
             s3Client.putObject(new PutObjectRequest(bucketName, originalFilename, tempFile));
-            sourceList = createSource(originalFilename, contentType, tempFile, getCloneInputStream(byteArray));
+            sourceList = createSource(originalFilename, contentType, tempFile);
         } catch (Exception e) {
             log.error("ERROR IN save() : We got a problem :" + e.getMessage());
         } finally {
             deletedTempFile(tempFile);
         }
         return sourceList;
-    }
-
-    private ByteArrayOutputStream copingInputStreamToArray(InputStream inputStream) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            inputStream.transferTo(baos);
-        } catch (IOException e) {
-            log.info("IN FileSystemSourceStorage copingInputStreamToArray() : coping inputStream to array...");
-        }
-        return baos;
-    }
-
-    private InputStream getCloneInputStream(ByteArrayOutputStream baos) {
-        log.info(" IN FileSystemSourceStorage getCloneInputStream() : cloning begin");
-        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     private void deletedTempFile(File tempFile) {
@@ -81,11 +68,11 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
     }
 
     @SneakyThrows
-    private List<Source> createSource(String originalFilename, String contentType, File tempFile, InputStream inputStream) {
+    private List<Source> createSource(String originalFilename, String contentType, File tempFile) {
         Source source = new Source(originalFilename
                 , pathCloudStorage
                 , tempFile.length()
-                , DigestUtils.md5Hex(inputStream)
+                , null
                 , contentType);
         source.setStorage_types("CLOUD_STORAGE");
         source.setStorage_id(2L);
@@ -97,7 +84,8 @@ public class CloudStorageAmazonS3 implements IStorageSourceService {
         try {
             tempFile = File.createTempFile("Epam_MusicPlayer-", ".tmp");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
-            log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created ");
+
+            log.info("IN putInputStreamToFile() : " + tempFile.getName() + " was created ,bytes length = " + tempFile.length());
         } catch (IOException e) {
             log.error("ERROR IN putInputStreamToFile() :" + e.getMessage());
             throw new UncheckedIOException(" Can't create a tempFile or write inputStream to him !" + e.getMessage()

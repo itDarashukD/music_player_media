@@ -15,7 +15,8 @@ public interface ISongRepository {
     void save(Song song);
 
     @Update("Update Song set year= #{year}, notes= #{notes}, name= #{name} where id=#{id}")
-    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id") //give me id of this inserting
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+        //give me id of this inserting
     void update(Song song);
 
     @Delete("Delete from Song where id=#{id}")
@@ -36,6 +37,10 @@ public interface ISongRepository {
 
     @Select("SELECT EXISTS(SELECT * FROM Song WHERE name = #{name})")
     Boolean isExistByName(@Param("name") String name);
+
+    @Select("SELECT EXISTS(SELECT * FROM Song WHERE name = #{name} or notes = #{notes})")
+    Boolean isExistByNameOrNotes(@Param("name") String name
+                                 , @Param("notes") String notes);
 
     @Select("SELECT source.path FROM Song CROSS JOIN Source ON Source.song_id=song.id WHERE Song.name=#{name} LIMIT 1;")
     SourceMetadata findResourceBySongName(String name);//TODO запрос sql
