@@ -8,41 +8,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Arrays;
-
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = MusicPlayerApplication.class)
 @WebMvcTest(value = SongController.class)
-//@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) //to shutdown Spring Security
-@ActiveProfiles("integration-test")
-class SongControllerTest {
+@WithMockUser(username = "admin", password = "admin", roles = {"USER", "ADMIN"})
+class SongControllerWithSecurityTest {
 
     private final Song song1 = new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1");
-    private final Song song2 = new Song(2L, 2L, 2L, "name2", "notes2", 2002, "storageTypes2");
-
     private final String EXPECTED_CONTENT = "1";
     private byte[] testContent = "someContent".getBytes();
 
@@ -56,27 +43,29 @@ class SongControllerTest {
     private ISourceService decorator;
 
     @Test
-    void getAll() throws Exception {
-        when(songService.finedAllSongs()).thenReturn(Arrays.asList(song1, song2));
-        this.mockMvc.perform(get("/song/"))
+    void greeting() throws Exception {
+        this.mockMvc.perform(get("/song/auth/greating"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].id", containsInAnyOrder(1, 2)));
+                .andExpect(content().string("greatings for you"));
+    }
+
+    @Test
+    void getAll() throws Exception {
+        this.mockMvc.perform(get("/song/"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test
     void findSongById() throws Exception {
-        when(songService.findSongById(anyLong()))
-                .thenReturn(new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1"));
         this.mockMvc.perform(get("/song/getSong/1"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", equalTo(1)))
-                .andExpect(jsonPath("$.year", equalTo(2001)));
+                .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "admin", password = "admin", roles = {"ADMIN"})
     void addSong() throws Exception {
         Mockito.when(songService.addSong(song1))
                 .thenReturn(song1.getId());
@@ -89,35 +78,70 @@ class SongControllerTest {
     }
 
     @Test
-    void updateAlbum() throws Exception {
-        when(songService.update(1L, song1)).thenReturn((song1.getId()));
+    @WithMockUser(username = "user", password = "user", roles = {"USER"})
+    void addSongWhenRoleUser() throws Exception {
+        Mockito.when(songService.addSong(song1))
+                .thenReturn(song1.getId());
+        this.mockMvc.perform(post("/song/add/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(song1)))
+                .andDo(print())
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void updateSong() throws Exception {
         this.mockMvc.perform(put("/song/update/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(song1)))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(EXPECTED_CONTENT));
+                .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "user", password = "user", roles = {"USER"})
+    void updateSongWhenUser() throws Exception {
+        this.mockMvc.perform(put("/song/update/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(song1)))
+                .andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", password = "admin", roles = {"ADMIN"})
     void deleteSong() throws Exception {
-        when(songService.deleteById(song1.getId())).thenReturn(true);
         this.mockMvc.perform(delete("/song/deleteSong/1"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "user", password = "user", roles = {"USER"})
+    void deleteSongWithUser() throws Exception {
+        this.mockMvc.perform(delete("/song/deleteSong/1"))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void deleteByName() throws Exception {
-        when(songService.deleteSongByName(song1.getName())).thenReturn(true);
         this.mockMvc.perform(delete("/song/deleteSongByName/name1"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "user", password = "user", roles = {"USER"})
+    void deleteByNameWithUser() throws Exception {
+        this.mockMvc.perform(delete("/song/deleteSongByName/name1"))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", password = "admin", roles = {"ADMIN", "USER"})
     void saveFile() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -134,26 +158,29 @@ class SongControllerTest {
     void getFileBySourceName() throws Exception {
         doReturn(testContent).when(decorator).findByName("name1", "storage_type1", "FILE_SYSTEM");
         this.mockMvc.perform(MockMvcRequestBuilders.get("/song/file/name1?file_type=FILE_SYSTEM&storage_type=storage_type1"))
-                .andExpect(content().bytes(testContent))
-                .andExpect(MockMvcResultMatchers.status()
-                .is(200))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     void existBySourceId() throws Exception {
-        doReturn(true).when(decorator).isExist(1L);
         this.mockMvc.perform(get("/song/exist/1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "admin", password = "admin", roles = {"ADMIN"})
     void deleteSourceBySongName() throws Exception {
-        when(decorator.delete(song1.getName())).thenReturn(true);
         this.mockMvc.perform(delete("/song/delete/name1"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "user", password = "user", roles = {"USER"})
+    void deleteSourceBySongNameWithUser() throws Exception {
+        this.mockMvc.perform(delete("/song/delete/name1"))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 }

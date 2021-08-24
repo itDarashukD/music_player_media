@@ -1,7 +1,6 @@
 package com.example.music_player.controller;
 
 import com.example.music_player.entity.User;
-import com.example.music_player.repository.IUserRepository;
 import com.example.music_player.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

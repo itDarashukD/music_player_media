@@ -42,6 +42,7 @@ public interface ISongRepository {
     Boolean isExistByNameOrNotes(@Param("name") String name
                                  , @Param("notes") String notes);
 
+
     @Select("SELECT source.path FROM Song CROSS JOIN Source ON Source.song_id=song.id WHERE Song.name=#{name} LIMIT 1;")
     SourceMetadata findResourceBySongName(String name);//TODO запрос sql
 }
