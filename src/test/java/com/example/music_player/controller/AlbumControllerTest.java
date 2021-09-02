@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = MusicPlayerApplication.class)
 @WebMvcTest(value = AlbumController.class)
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
+@WithMockUser(username = "admin", password = "admin", roles = {"ADMIN"})
 class AlbumControllerTest {
 
     private final Album album1 = new Album(1L, "album1", 2001, "note1");

@@ -23,8 +23,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class FileSystemSourceStorageTest {
-    private final String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests\\";
-    private final String PATH_SAVE_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\music_player\\music_player\\src\\test\\resources\\filesForTests\\saveTestFiles\\";
+    private final String PATH_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\IdeaProjects\\music_player_media\\src\\test\\resources\\filesForTests\\";
+    private final String PATH_SAVE_TEST_FILES = "C:\\Users\\Dzmitry_Darashuk\\IdeaProjects\\music_player_media\\src\\test\\resources\\filesForTests\\saveTestFiles\\";
     private InputStream inputStream;
     private Source source1;
     private Source source2;

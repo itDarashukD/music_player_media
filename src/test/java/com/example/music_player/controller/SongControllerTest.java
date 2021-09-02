@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = SongController.class)
 //@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) //to shutdown Spring Security
 @ActiveProfiles("integration-test")
+@WithMockUser(username = "admin", password = "admin", roles = {"ADMIN"})
 class SongControllerTest {
 
     private final Song song1 = new Song(1L, 1L, 1L, "name1", "notes1", 2001, "storageTypes1");
